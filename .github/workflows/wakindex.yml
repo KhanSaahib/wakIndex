@@ -1,4 +1,4 @@
-# Description: Dogfoods AgentScope as a pull-request permission policy gate.
+# Description: Dogfoods wakIndex as a pull-request permission policy gate.
 name: Agent permission review
 on:
   pull_request:
@@ -14,11 +14,10 @@ jobs:
         uses: ./
         with:
           path: .
-          policy: agentscope-policy.toml
-          output: agentscope.sarif
+          policy: wakindex-policy.toml
+          output: wakindex.sarif
       - name: Upload findings
         if: always()
         uses: github/codeql-action/upload-sarif@v3
         with:
-          sarif_file: agentscope.sarif
-
+          sarif_file: wakindex.sarif

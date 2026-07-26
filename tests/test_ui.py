@@ -2,9 +2,9 @@
 
 import html
 
-from agentscope.branding import ASCII_LOGO, MASCOT_NAME, PRODUCT_TAGLINE
-from agentscope.policy import Policy
-from agentscope.ui import _page
+from wakindex.branding import ASCII_LOGO, MASCOT_NAME, PRODUCT_TAGLINE
+from wakindex.policy import Policy
+from wakindex.ui import _page
 
 
 def test_policy_editor_displays_ascii_identity_and_heading() -> None:
@@ -14,4 +14,4 @@ def test_policy_editor_displays_ascii_identity_and_heading() -> None:
     assert MASCOT_NAME in document
     assert PRODUCT_TAGLINE in document
     assert "<h1>Permission control center</h1>" in document
-    assert "<title>AgentScope · Permission control center</title>" in document
+    assert "<title>wakIndex · Permission control center</title>" in document

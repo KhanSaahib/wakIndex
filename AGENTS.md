@@ -1,20 +1,20 @@
-# AgentScope Agent Instructions
+# wakIndex Agent Instructions
 
 ## Description
 
-This file is the durable handoff reference for any coding agent working on AgentScope. Read it before changing the repository.
+This file is the durable handoff reference for any coding agent working on wakIndex. Read it before changing the repository.
 
 ## Product contract
 
-AgentScope is a local-first, deterministic permission inventory and policy checker for AI agents, MCP servers, skills, and GitHub Actions. It must work without an LLM, network access, or API keys. Static analysis must never execute discovered commands and must never record secret values.
+wakIndex is a local-first, deterministic permission inventory and policy checker for AI agents, MCP servers, skills, and GitHub Actions. It must work without an LLM, network access, or API keys. Static analysis must never execute discovered commands and must never record secret values.
 
 ## Architecture
 
-- `src/agentscope/scanners.py` discovers supported files and emits normalized permission findings.
-- `src/agentscope/models.py` owns the stable manifest schema.
-- `src/agentscope/policy.py` evaluates findings against TOML policy.
-- `src/agentscope/cli.py` exposes `scan`, `check`, `init`, and `ui`.
-- `src/agentscope/ui.py` serves a loopback-only policy editor using the Python standard library.
+- `src/wakindex/scanners.py` discovers supported files and emits normalized permission findings.
+- `src/wakindex/models.py` owns the stable manifest schema.
+- `src/wakindex/policy.py` evaluates findings against TOML policy.
+- `src/wakindex/cli.py` exposes `scan`, `check`, `init`, and `ui`.
+- `src/wakindex/ui.py` serves a loopback-only policy editor using the Python standard library.
 - `tests/fixtures/risky_repo` is the realistic adversarial fixture and must remain free of real credentials.
 
 ## Working rules
@@ -30,4 +30,3 @@ AgentScope is a local-first, deterministic permission inventory and policy check
 ## Current status
 
 The MVP supports Claude-style settings, VS Code and generic MCP JSON, `SKILL.md` files, GitHub workflow permissions, environment-variable references, manifest generation, TOML policy enforcement, SARIF output, a Docker action, and a local permission editor.
-

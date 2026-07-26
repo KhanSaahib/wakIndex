@@ -10,7 +10,7 @@ from pathlib import Path
 from typing import Any
 from urllib.parse import urlparse
 
-from agentscope.models import Finding, Manifest
+from wakindex.models import Finding, Manifest
 
 ENV_PATTERN = re.compile(
     r"\$\{([A-Za-z_][A-Za-z0-9_]*)\}|\$([A-Za-z_][A-Za-z0-9_]*)|%([A-Za-z_][A-Za-z0-9_]*)%"
@@ -200,7 +200,7 @@ def _scan_workflow(path: Path, root: Path) -> Iterable[Finding]:
 
 def _candidate_files(root: Path) -> Iterable[Path]:
     names = {".mcp.json", "mcp.json", "settings.json", "settings.local.json", "SKILL.md"}
-    ignore_path = root / ".agentscopeignore"
+    ignore_path = root / ".wakindexignore"
     try:
         ignore_patterns = tuple(
             line.strip()

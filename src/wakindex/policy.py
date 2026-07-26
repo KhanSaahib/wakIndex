@@ -7,7 +7,7 @@ import tomllib
 from dataclasses import dataclass
 from pathlib import Path
 
-from agentscope.models import Finding, Manifest
+from wakindex.models import Finding, Manifest
 
 
 @dataclass(frozen=True)
@@ -41,7 +41,7 @@ class Policy:
             return "[" + ", ".join(f'"{value}"' for value in escaped) + "]"
 
         content = (
-            "# Description: AgentScope permission policy; deny rules take precedence.\n"
+            "# Description: wakIndex permission policy; deny rules take precedence.\n"
             f'default = "{self.default}"\n'
             f"allow = {array(self.allow)}\n"
             f"deny = {array(self.deny)}\n"

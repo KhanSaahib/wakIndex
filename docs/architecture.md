@@ -1,4 +1,4 @@
-# AgentScope Architecture
+# wakIndex Architecture
 
 ## Description
 
@@ -10,7 +10,7 @@ Agent configurations are workload definitions spread across JSON, Markdown, YAML
 
 ## Threat model
 
-AgentScope assumes the scanned repository may be malicious. It protects the reviewer by:
+wakIndex assumes the scanned repository may be malicious. It protects the reviewer by:
 
 - performing static analysis only;
 - recording environment variable names, never values;
@@ -31,7 +31,7 @@ repository files -> format scanners -> normalized findings -> manifest
 
 ## Human interfaces
 
-`branding.py` supplies the ASCII-only Permission Sentinel mascot for CLI help, terminal reports,
+`branding.py` supplies the ASCII-only Wak, the Permission Snake mascot for CLI help, terminal reports,
 and the loopback browser editor. CLI banners are limited to human-readable output so JSON and
 SARIF remain valid for automation. The browser embeds the same identity without external fonts,
 scripts, or assets.
@@ -57,7 +57,7 @@ Each finding includes source evidence, a risk level, and structured metadata. Po
 - `.github/workflows/*.yml` and `*.yaml`
 - `${NAME}`, `$NAME`, and `%NAME%` environment references in MCP configuration
 
-Repository-relative glob patterns in `.agentscopeignore` exclude known fixtures or generated content.
+Repository-relative glob patterns in `.wakindexignore` exclude known fixtures or generated content.
 
 ## Extension model
 
