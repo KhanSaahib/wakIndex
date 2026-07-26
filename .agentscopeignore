@@ -1,0 +1,2 @@
+# Description: Repository-relative paths excluded from AgentScope's own inventory.
+tests/fixtures/**

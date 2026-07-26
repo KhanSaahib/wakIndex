@@ -1,0 +1,16 @@
+{
+  "_description": "Realistic MCP fixture with local and remote servers; values are fake.",
+  "servers": {
+    "database-admin": {
+      "command": "npx",
+      "args": ["-y", "@example/db-mcp", "--config", "../shared/admin.json"],
+      "env": {
+        "DATABASE_URL": "${PROD_DATABASE_URL}",
+        "API_TOKEN": "${MCP_API_TOKEN}"
+      }
+    },
+    "remote-issues": {
+      "url": "https://mcp.example.invalid/api"
+    }
+  }
+}

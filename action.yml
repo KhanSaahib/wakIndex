@@ -1,0 +1,24 @@
+# Description: GitHub Docker Action metadata for pull-request permission policy checks.
+name: AgentScope permission review
+description: Inventory AI agent, MCP, skill, and GitHub token permissions before they run.
+author: AgentScope contributors
+inputs:
+  path:
+    description: Repository path to scan.
+    required: false
+    default: .
+  policy:
+    description: AgentScope TOML policy path.
+    required: false
+    default: agentscope-policy.toml
+  output:
+    description: SARIF result path.
+    required: false
+    default: agentscope.sarif
+runs:
+  using: docker
+  image: Dockerfile
+branding:
+  icon: shield
+  color: blue
+

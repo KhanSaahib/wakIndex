@@ -1,0 +1,9 @@
+{
+  "_description": "Safe fixture with a constrained read-only local server.",
+  "servers": {
+    "docs": {
+      "command": "python",
+      "args": ["-m", "docs_server", "--root", "."]
+    }
+  }
+}

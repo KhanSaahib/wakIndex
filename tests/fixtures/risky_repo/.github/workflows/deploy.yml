@@ -1,0 +1,10 @@
+# Description: Realistic risky workflow fixture with broad write permissions.
+name: Deploy
+on: [push]
+permissions: write-all
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo deploy
+

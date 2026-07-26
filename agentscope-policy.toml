@@ -1,0 +1,4 @@
+# Description: Conservative repository policy used by local checks and CI.
+default = "deny"
+allow = ["filesystem.read", "process.execute", "github.token"]
+deny = ["agent.unrestricted", "process.shell", "filesystem.outside_workspace"]

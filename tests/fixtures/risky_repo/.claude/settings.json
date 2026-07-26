@@ -1,0 +1,8 @@
+{
+  "_description": "Realistic agent settings fixture that includes an unsafe bypass.",
+  "permissions": {
+    "allow": ["Read", "Write", "Bash(git diff:*)"],
+    "deny": ["Bash(rm:*)"]
+  },
+  "dangerouslySkipPermissions": true
+}

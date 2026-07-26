@@ -1,0 +1,24 @@
+# Description: Dogfoods AgentScope as a pull-request permission policy gate.
+name: Agent permission review
+on:
+  pull_request:
+permissions:
+  contents: read
+  security-events: write
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check agent permissions
+        uses: ./
+        with:
+          path: .
+          policy: agentscope-policy.toml
+          output: agentscope.sarif
+      - name: Upload findings
+        if: always()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: agentscope.sarif
+

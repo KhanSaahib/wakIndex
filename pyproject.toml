@@ -1,0 +1,47 @@
+# Description: Python packaging, dependencies, CLI entry point, and quality-tool configuration.
+[build-system]
+requires = ["hatchling>=1.25"]
+build-backend = "hatchling.build"
+
+[project]
+name = "agentscope-security"
+version = "0.1.0"
+description = "Inventory and policy-check permissions for AI agents, MCP servers, and skills."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "Apache-2.0" }
+authors = [{ name = "AgentScope contributors" }]
+keywords = ["ai-security", "mcp", "agents", "permissions", "github-actions"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Environment :: Console",
+  "License :: OSI Approved :: Apache Software License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.11",
+  "Topic :: Security",
+]
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["pytest>=8.2,<9", "ruff>=0.6,<1"]
+
+[project.scripts]
+agentscope = "agentscope.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/agentscope"]
+
+[tool.pytest.ini_options]
+addopts = "-q"
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "S", "B", "UP"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["S101"]
+"src/agentscope/ui.py" = ["E501"]
