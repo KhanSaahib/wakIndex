@@ -38,7 +38,9 @@ def _text_report(manifest: Manifest) -> str:
 
 def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        prog="agentscope", description="Inventory agent permissions before they run."
+        prog="agentscope",
+        description=terminal_banner(),
+        formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     parser.add_argument("--version", action="version", version="AgentScope 0.1.0")
     commands = parser.add_subparsers(dest="command", required=True)

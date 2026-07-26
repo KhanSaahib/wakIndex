@@ -1,14 +1,22 @@
 """Description: Shared text identity used by AgentScope's human-facing interfaces."""
 
 ASCII_LOGO = r"""
-    ___                    __  _____
-   /   | ____ ____  ____  / /_/ ___/_________  ____  ___
-  / /| |/ __ `/ _ \/ __ \/ __/\__ \/ ___/ __ \/ __ \/ _ \
- / ___ / /_/ /  __/ / / / /_ ___/ / /__/ /_/ / /_/ /  __/
-/_/  |_\__, /\___/_/ /_/\__//____/\___/\____/ .___/\___/
-      /____/                                 /_/
+            .----------------.
+         .-'   .----------.   '-.
+        /     /  _      _  \     \
+       |     |  (o)    (o)  |     |      A G E N T S C O P E
+       |     |      /\       |     |      -------------------
+       |     |   .-====-.    |     |      PERMISSION SENTINEL
+        \     \  '------'   /     /
+         '._   '----||----'   _.'
+            '-------||-------'
+                .---||---.
+               /  ALLOW  \
+              /____/\_____\
+             [ DENY  ||  LOG ]
 """.strip("\n")
 
+MASCOT_NAME = "PERMISSION SENTINEL"
 PRODUCT_TAGLINE = "See every capability. Approve only what belongs."
 
 

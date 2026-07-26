@@ -17,7 +17,8 @@ agentscope ui --policy agentscope-policy.toml
 ```
 
 The UI opens at `http://127.0.0.1:8765` and provides Allow/Deny radio controls for each permission. It does not contact an external service.
-Human-facing terminal reports and the browser editor share an AgentScope ASCII identity; JSON and SARIF remain clean machine-readable output.
+Human-facing terminal reports, CLI help, and the browser editor are introduced by AgentScope's
+ASCII Permission Sentinel mascot; JSON and SARIF remain clean machine-readable output.
 
 ## What it finds
 

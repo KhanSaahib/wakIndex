@@ -3,7 +3,9 @@
 import json
 from pathlib import Path
 
-from agentscope.branding import ASCII_LOGO, PRODUCT_TAGLINE
+import pytest
+
+from agentscope.branding import ASCII_LOGO, MASCOT_NAME, PRODUCT_TAGLINE
 from agentscope.cli import main
 
 FIXTURES = Path(__file__).parent / "fixtures"
@@ -56,8 +58,20 @@ def test_text_scan_displays_product_identity(capsys) -> None:
 
     assert exit_code == 0
     assert ASCII_LOGO in output
+    assert MASCOT_NAME in output
     assert PRODUCT_TAGLINE in output
     output.encode("cp1252", errors="strict")
+
+
+def test_help_introduces_the_permission_sentinel(capsys) -> None:
+    with pytest.raises(SystemExit) as exit_info:
+        main(["--help"])
+
+    output = capsys.readouterr().out
+    assert exit_info.value.code == 0
+    assert ASCII_LOGO in output
+    assert MASCOT_NAME in output
+    assert "scan" in output
 
 
 def test_json_scan_remains_machine_readable_without_banner(capsys) -> None:
