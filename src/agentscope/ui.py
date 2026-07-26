@@ -9,6 +9,7 @@ import webbrowser
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
+from agentscope.branding import ASCII_LOGO, PRODUCT_TAGLINE, terminal_banner
 from agentscope.policy import Policy
 from agentscope.scanners import scan_repository
 
@@ -29,19 +30,25 @@ def _page(permissions: list[str], policy: Policy, message: str = "") -> bytes:
     document = f"""<!doctype html>
 <!-- Description: Local AgentScope policy editor rendered without external assets. -->
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width">
-<title>AgentScope permissions</title>
+<title>AgentScope · Permission control center</title>
 <style>
-:root{{font:16px system-ui;color:#17212b;background:#f4f7f9}}body{{max-width:900px;margin:3rem auto;padding:0 1rem}}
-main{{background:white;border:1px solid #dbe3e8;border-radius:14px;padding:2rem;box-shadow:0 8px 30px #18304212}}
-h1{{margin-top:0}}table{{width:100%;border-collapse:collapse}}td,th{{text-align:left;padding:.8rem;border-bottom:1px solid #e6ecef}}
-button{{margin-top:1.3rem;background:#0969da;color:white;border:0;border-radius:8px;padding:.75rem 1.1rem;font-weight:700}}
+:root{{font:16px system-ui;color:#17212b;background:#eef3f6}}body{{max-width:960px;margin:3rem auto;padding:0 1rem}}
+main{{background:white;border:1px solid #dbe3e8;border-radius:18px;overflow:hidden;box-shadow:0 18px 50px #18304218}}
+.hero{{padding:2rem;background:#071b2b;color:#e8fff8;border-bottom:4px solid #26d9a0}}
+.logo{{margin:0;overflow:auto;color:#72f1c5;font:700 clamp(.55rem,1.25vw,.82rem)/1.15 ui-monospace,monospace}}
+.tagline{{margin:.9rem 0 0;color:#b9d7cf;letter-spacing:.04em}}.content{{padding:2rem}}
+h1{{margin:0 0 .35rem;font-size:1.65rem}}table{{width:100%;border-collapse:collapse}}
+td,th{{text-align:left;padding:.8rem;border-bottom:1px solid #e6ecef}}
+button{{margin-top:1.3rem;background:#087f5b;color:white;border:0;border-radius:8px;padding:.75rem 1.1rem;font-weight:700}}
 .note{{color:#52606d}}.message{{background:#dafbe1;padding:.7rem;border-radius:8px}}
-</style></head><body><main><h1>AgentScope permissions</h1>
+</style></head><body><main><header class="hero"><pre class="logo">{html.escape(ASCII_LOGO)}</pre>
+<p class="tagline">{html.escape(PRODUCT_TAGLINE)}</p></header><section class="content">
+<h1>Permission control center</h1>
 <p class="note">Choose an explicit policy for every permission discovered locally. Deny is selected by default.</p>
 {f'<p class="message">{html.escape(message)}</p>' if message else ""}
 <form method="post"><table><thead><tr><th>Permission</th><th colspan="2">Decision</th></tr></thead>
 <tbody>{"".join(rows)}</tbody></table><button type="submit">Save policy</button></form>
-</main></body></html>"""
+</section></main></body></html>"""
     return document.encode("utf-8")
 
 
@@ -81,7 +88,7 @@ def serve(root: Path, policy_path: Path, port: int, open_browser: bool) -> int:
 
     server = ThreadingHTTPServer(("127.0.0.1", port), Handler)
     url = f"http://127.0.0.1:{server.server_port}"
-    print(f"AgentScope policy editor: {url}")
+    print(f"{terminal_banner()}\n\nBrowser UI: {url}")
     if open_browser:
         threading.Timer(0.2, webbrowser.open, args=(url,)).start()
     try:

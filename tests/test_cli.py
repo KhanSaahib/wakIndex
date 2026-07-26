@@ -3,6 +3,7 @@
 import json
 from pathlib import Path
 
+from agentscope.branding import ASCII_LOGO, PRODUCT_TAGLINE
 from agentscope.cli import main
 
 FIXTURES = Path(__file__).parent / "fixtures"
@@ -47,3 +48,21 @@ def test_init_refuses_to_overwrite_existing_policy(tmp_path: Path) -> None:
     policy.write_text("# keep me\n", encoding="utf-8")
     assert main(["init", "--policy", str(policy)]) == 1
     assert policy.read_text(encoding="utf-8") == "# keep me\n"
+
+
+def test_text_scan_displays_product_identity(capsys) -> None:
+    exit_code = main(["scan", str(FIXTURES / "safe_repo"), "--format", "text"])
+    output = capsys.readouterr().out
+
+    assert exit_code == 0
+    assert ASCII_LOGO in output
+    assert PRODUCT_TAGLINE in output
+    output.encode("cp1252", errors="strict")
+
+
+def test_json_scan_remains_machine_readable_without_banner(capsys) -> None:
+    exit_code = main(["scan", str(FIXTURES / "safe_repo"), "--format", "json"])
+    output = capsys.readouterr().out
+
+    assert exit_code == 0
+    assert json.loads(output)["schema_version"] == "1.0"

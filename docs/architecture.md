@@ -29,6 +29,12 @@ repository files -> format scanners -> normalized findings -> manifest
                                                     |-> local policy editor
 ```
 
+## Human interfaces
+
+`branding.py` supplies one ASCII-only identity for terminal reports and the loopback browser
+editor. CLI banners are limited to human-readable output so JSON and SARIF remain valid for
+automation. The browser embeds the same identity without external fonts, scripts, or assets.
+
 ## Permission taxonomy
 
 Findings use `category.action` identifiers:

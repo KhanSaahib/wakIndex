@@ -7,6 +7,7 @@ import sys
 from collections.abc import Sequence
 from pathlib import Path
 
+from agentscope.branding import terminal_banner
 from agentscope.models import Manifest
 from agentscope.policy import Policy, evaluate
 from agentscope.sarif import render_sarif
@@ -27,10 +28,10 @@ def _write_or_print(content: str, output: str | None) -> None:
 
 
 def _text_report(manifest: Manifest) -> str:
-    lines = [f"AgentScope: {len(manifest.findings)} permission finding(s)"]
+    lines = [terminal_banner(), "", f"INVENTORY - {len(manifest.findings)} permission finding(s)"]
     for item in manifest.findings:
         lines.append(
-            f"[{item.risk.upper():6}] {item.permission:30} {item.source} — {item.evidence}"
+            f"[{item.risk.upper():6}] {item.permission:30} {item.source} - {item.evidence}"
         )
     return "\n".join(lines) + "\n"
 
@@ -74,7 +75,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             print(f"Refusing to overwrite existing policy: {target}", file=sys.stderr)
             return 1
         DEFAULT_POLICY.write(target)
-        print(f"Created {target}")
+        print(f"{terminal_banner()}\n\nCreated policy: {target}")
         return 0
 
     if args.command == "ui":
@@ -103,7 +104,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         content = manifest.to_json()
     else:
         status = "PASS" if evaluation.passed else "FAIL"
-        lines = [f"AgentScope policy: {status}"]
+        lines = [terminal_banner(), "", f"POLICY REVIEW - {status}"]
         lines.extend(
             f"- {item.finding.permission} in {item.finding.source}: {item.reason}"
             for item in evaluation.violations
