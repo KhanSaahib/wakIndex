@@ -10,7 +10,7 @@ description = "Inventory and policy-check permissions for AI agents, MCP servers
 readme = "README.md"
 requires-python = ">=3.11"
 license = { text = "Apache-2.0" }
-authors = [{ name = "wakIndex contributors" }]
+authors = [{ name = "wakindex contributors" }]
 keywords = ["ai-security", "mcp", "agents", "permissions", "github-actions"]
 classifiers = [
   "Development Status :: 3 - Alpha",

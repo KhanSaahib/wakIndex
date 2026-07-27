@@ -7,7 +7,7 @@ import sys
 from collections.abc import Sequence
 from pathlib import Path
 
-from wakindex.branding import terminal_banner
+from wakindex.branding import PROJECT_DESCRIPTION, terminal_banner
 from wakindex.models import Manifest
 from wakindex.policy import Policy, evaluate
 from wakindex.sarif import render_sarif
@@ -49,10 +49,10 @@ def _text_report(manifest: Manifest) -> str:
 def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="wakindex",
-        description=terminal_banner(),
+        description=PROJECT_DESCRIPTION,
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
-    parser.add_argument("--version", action="version", version="wakIndex 0.1.0")
+    parser.add_argument("--version", action="version", version="wakindex 0.1.0")
     commands = parser.add_subparsers(dest="command", required=True)
 
     scan = commands.add_parser("scan", help="create a permission inventory")
@@ -83,10 +83,9 @@ def main(argv: Sequence[str] | None = None) -> int:
     _configure_utf8(sys.stdout)
     _configure_utf8(sys.stderr)
     arguments = list(argv) if argv is not None else sys.argv[1:]
-    if arguments not in (["--help"], ["-h"]):
-        print(terminal_banner(), file=sys.stderr)
     args = _parser().parse_args(arguments)
     if args.command == "init":
+        print(terminal_banner(), file=sys.stderr)
         target = Path(args.policy)
         if target.exists() and not args.force:
             print(f"Refusing to overwrite existing policy: {target}", file=sys.stderr)

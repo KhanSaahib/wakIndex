@@ -41,7 +41,7 @@ class Policy:
             return "[" + ", ".join(f'"{value}"' for value in escaped) + "]"
 
         content = (
-            "# Description: wakIndex permission policy; deny rules take precedence.\n"
+            "# Description: wakindex permission policy; deny rules take precedence.\n"
             f'default = "{self.default}"\n'
             f"allow = {array(self.allow)}\n"
             f"deny = {array(self.deny)}\n"

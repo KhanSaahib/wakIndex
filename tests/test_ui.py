@@ -13,4 +13,4 @@ def test_policy_editor_displays_clean_product_heading_without_mascot() -> None:
     assert "mascot-name" not in document
     assert "PERMISSION SNAKE" not in document
     assert "<h1>Permission control center</h1>" in document
-    assert "<title>wakIndex · Permission control center</title>" in document
+    assert "<title>wakindex · Permission control center</title>" in document

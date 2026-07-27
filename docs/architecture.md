@@ -1,4 +1,4 @@
-# wakIndex Architecture
+# wakindex Architecture
 
 ## Description
 
@@ -10,7 +10,7 @@ Agent configurations are workload definitions spread across JSON, Markdown, YAML
 
 ## Threat model
 
-wakIndex assumes the scanned repository may be malicious. It protects the reviewer by:
+wakindex assumes the scanned repository may be malicious. It protects the reviewer by:
 
 - performing static analysis only;
 - recording environment variable names, never values;
@@ -31,10 +31,10 @@ repository files -> format scanners -> normalized findings -> manifest
 
 ## Human interfaces
 
-`branding.py` supplies the canonical two-part WAK / INDEX banner for CLI help and terminal
-startup. The banner is written to stderr so JSON and SARIF stdout remain valid for automation.
-The loopback browser editor uses a restrained text identity without external fonts, scripts, or
-assets.
+`branding.py` supplies the canonical two-part WAK / INDEX panel for `wakindex init`, followed by a
+description, quick-start commands, and output divider. Scan, check, UI, and root help do not emit
+the panel. The loopback browser editor uses a restrained text identity without external fonts,
+scripts, or assets.
 
 ## Permission taxonomy
 

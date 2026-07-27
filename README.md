@@ -1,10 +1,10 @@
-# wakIndex
+# wakindex
 
 > Static permission inventory and policy gates for AI agents, MCP servers, skills, and GitHub Actions.
 
 ## Description
 
-wakIndex treats agent configuration like a production workload definition. It creates a readable permission manifest, checks it against team policy, and can block a pull request before an over-privileged agent runs. Analysis is deterministic, local, and requires no LLM, API key, or network access.
+wakindex treats agent configuration like a production workload definition. It creates a readable permission manifest, checks it against team policy, and can block a pull request before an over-privileged agent runs. Analysis is deterministic, local, and requires no LLM, API key, or network access.
 
 ## Quick start
 
@@ -17,8 +17,9 @@ wakindex ui --policy wakindex-policy.toml
 ```
 
 The UI opens at `http://127.0.0.1:8765` and provides Allow/Deny radio controls for each permission. It does not contact an external service.
-Every CLI invocation displays the two-part `WAK` / `INDEX` terminal banner. JSON and SARIF remain
-clean machine-readable stdout because startup branding is written to the terminal error stream.
+`wakindex init` displays the two-part `WAK` / `INDEX` startup panel with a short project
+description, common commands, and an output divider. Other commands and root help stay compact;
+JSON and SARIF remain clean machine-readable output.
 
 ## What it finds
 
@@ -28,7 +29,7 @@ clean machine-readable stdout because startup branding is written to the termina
 - GitHub Actions token permissions, including write and broad scopes
 - filesystem paths that appear to escape the repository
 
-wakIndex never executes discovered commands and never emits environment variable values.
+wakindex never executes discovered commands and never emits environment variable values.
 Use `.wakindexignore` with repository-relative glob patterns for known fixtures or generated files.
 
 ## Policy
@@ -36,7 +37,7 @@ Use `.wakindexignore` with repository-relative glob patterns for known fixtures 
 `wakindex init` creates a conservative TOML policy:
 
 ```toml
-# wakIndex policy: exact IDs and "category.*" wildcards are supported.
+# wakindex policy: exact IDs and "category.*" wildcards are supported.
 default = "deny"
 allow = ["filesystem.read"]
 deny = ["agent.unrestricted", "process.shell", "filesystem.outside_workspace"]
