@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from wakindex.branding import ASCII_LOGO, MASCOT_NAME, PRODUCT_TAGLINE
+from wakindex.branding import CLI_BANNER
 from wakindex.cli import main
 
 FIXTURES = Path(__file__).parent / "fixtures"
@@ -57,21 +57,21 @@ def test_text_scan_displays_product_identity(capsys) -> None:
     captured = capsys.readouterr()
 
     assert exit_code == 0
-    assert ASCII_LOGO in captured.err
-    assert MASCOT_NAME in captured.err
-    assert PRODUCT_TAGLINE in captured.err
-    assert ASCII_LOGO not in captured.out
-    captured.err.encode("cp1252", errors="strict")
+    assert CLI_BANNER in captured.err
+    assert "PERMISSION SNAKE" not in captured.err
+    assert CLI_BANNER not in captured.out
+    captured.err.encode("utf-8", errors="strict")
 
 
-def test_help_introduces_the_wakindex_mascot(capsys) -> None:
+def test_help_displays_the_two_part_wakindex_banner(capsys) -> None:
     with pytest.raises(SystemExit) as exit_info:
         main(["--help"])
 
     output = capsys.readouterr().out
     assert exit_info.value.code == 0
-    assert ASCII_LOGO in output
-    assert MASCOT_NAME in output
+    assert CLI_BANNER in output
+    assert "██╗    ██╗" in output
+    assert "██╗███╗   ██╗" in output
     assert "scan" in output
 
 
@@ -81,5 +81,5 @@ def test_json_scan_remains_machine_readable_without_banner(capsys) -> None:
 
     assert exit_code == 0
     assert json.loads(captured.out)["schema_version"] == "1.0"
-    assert ASCII_LOGO not in captured.out
-    assert ASCII_LOGO in captured.err
+    assert CLI_BANNER not in captured.out
+    assert CLI_BANNER in captured.err

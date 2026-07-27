@@ -20,6 +20,16 @@ DEFAULT_POLICY = Policy(
 )
 
 
+def _configure_utf8(stream: object) -> None:
+    """Use UTF-8 on real text streams while remaining compatible with test captures."""
+    reconfigure = getattr(stream, "reconfigure", None)
+    if callable(reconfigure):
+        try:
+            reconfigure(encoding="utf-8", errors="strict")
+        except (AttributeError, OSError, ValueError):
+            pass
+
+
 def _write_or_print(content: str, output: str | None) -> None:
     if output:
         Path(output).write_text(content, encoding="utf-8")
@@ -70,6 +80,8 @@ def _parser() -> argparse.ArgumentParser:
 
 def main(argv: Sequence[str] | None = None) -> int:
     """Run the CLI and return a process exit code."""
+    _configure_utf8(sys.stdout)
+    _configure_utf8(sys.stderr)
     arguments = list(argv) if argv is not None else sys.argv[1:]
     if arguments not in (["--help"], ["-h"]):
         print(terminal_banner(), file=sys.stderr)

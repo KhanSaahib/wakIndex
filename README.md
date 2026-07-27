@@ -17,8 +17,8 @@ wakindex ui --policy wakindex-policy.toml
 ```
 
 The UI opens at `http://127.0.0.1:8765` and provides Allow/Deny radio controls for each permission. It does not contact an external service.
-Human-facing terminal reports, CLI help, and the browser editor are introduced by wakIndex's
-ASCII Wak, the Permission Snake mascot; JSON and SARIF remain clean machine-readable output.
+Every CLI invocation displays the two-part `WAK` / `INDEX` terminal banner. JSON and SARIF remain
+clean machine-readable stdout because startup branding is written to the terminal error stream.
 
 ## What it finds
 

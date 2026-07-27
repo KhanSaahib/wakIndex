@@ -31,10 +31,10 @@ repository files -> format scanners -> normalized findings -> manifest
 
 ## Human interfaces
 
-`branding.py` supplies the ASCII-only Wak, the Permission Snake mascot for CLI help, terminal reports,
-and the loopback browser editor. CLI banners are limited to human-readable output so JSON and
-SARIF remain valid for automation. The browser embeds the same identity without external fonts,
-scripts, or assets.
+`branding.py` supplies the canonical two-part WAK / INDEX banner for CLI help and terminal
+startup. The banner is written to stderr so JSON and SARIF stdout remain valid for automation.
+The loopback browser editor uses a restrained text identity without external fonts, scripts, or
+assets.
 
 ## Permission taxonomy
 
