@@ -1,22 +1,24 @@
-# AgentScope
+# wakIndex
 
 > Static permission inventory and policy gates for AI agents, MCP servers, skills, and GitHub Actions.
 
 ## Description
 
-AgentScope treats agent configuration like a production workload definition. It creates a readable permission manifest, checks it against team policy, and can block a pull request before an over-privileged agent runs. Analysis is deterministic, local, and requires no LLM, API key, or network access.
+wakIndex treats agent configuration like a production workload definition. It creates a readable permission manifest, checks it against team policy, and can block a pull request before an over-privileged agent runs. Analysis is deterministic, local, and requires no LLM, API key, or network access.
 
 ## Quick start
 
 ```bash
 python -m pip install .
-agentscope init
-agentscope scan . --output agentscope-manifest.json
-agentscope check . --policy agentscope-policy.toml
-agentscope ui --policy agentscope-policy.toml
+wakindex init
+wakindex scan . --output wakindex-manifest.json
+wakindex check . --policy wakindex-policy.toml
+wakindex ui --policy wakindex-policy.toml
 ```
 
 The UI opens at `http://127.0.0.1:8765` and provides Allow/Deny radio controls for each permission. It does not contact an external service.
+Every CLI invocation displays the two-part `WAK` / `INDEX` terminal banner. JSON and SARIF remain
+clean machine-readable stdout because startup branding is written to the terminal error stream.
 
 ## What it finds
 
@@ -26,40 +28,40 @@ The UI opens at `http://127.0.0.1:8765` and provides Allow/Deny radio controls f
 - GitHub Actions token permissions, including write and broad scopes
 - filesystem paths that appear to escape the repository
 
-AgentScope never executes discovered commands and never emits environment variable values.
-Use `.agentscopeignore` with repository-relative glob patterns for known fixtures or generated files.
+wakIndex never executes discovered commands and never emits environment variable values.
+Use `.wakindexignore` with repository-relative glob patterns for known fixtures or generated files.
 
 ## Policy
 
-`agentscope init` creates a conservative TOML policy:
+`wakindex init` creates a conservative TOML policy:
 
 ```toml
-# AgentScope policy: exact IDs and "category.*" wildcards are supported.
+# wakIndex policy: exact IDs and "category.*" wildcards are supported.
 default = "deny"
 allow = ["filesystem.read"]
 deny = ["agent.unrestricted", "process.shell", "filesystem.outside_workspace"]
 ```
 
-`agentscope check` exits `0` when compliant and `2` on policy violations. Use `--format sarif --output agentscope.sarif` for code-scanning integrations.
+`wakindex check` exits `0` when compliant and `2` on policy violations. Use `--format sarif --output wakindex.sarif` for code-scanning integrations.
 
 ## GitHub Action
 
 ```yaml
-- uses: your-org/agentscope@v1
+- uses: your-org/wakindex@v1
   with:
     path: .
-    policy: agentscope-policy.toml
+    policy: wakindex-policy.toml
 ```
 
-The included Docker action runs consistently on Linux GitHub runners. A ready-to-copy workflow lives in `.github/workflows/agentscope.yml`.
+The included Docker action runs consistently on Linux GitHub runners. A ready-to-copy workflow lives in `.github/workflows/wakindex.yml`.
 
 ## Docker
 
 ```bash
-docker build -t agentscope .
-docker run --rm -v "$PWD:/workspace" agentscope check /workspace --policy /workspace/agentscope-policy.toml
-docker build --target test -t agentscope-test .
-docker run --rm agentscope-test
+docker build -t wakindex .
+docker run --rm -v "$PWD:/workspace" wakindex check /workspace --policy /workspace/wakindex-policy.toml
+docker build --target test -t wakindex-test .
+docker run --rm wakindex-test
 ```
 
 ## Development

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 
-from agentscope.policy import Evaluation
+from wakindex.policy import Evaluation
 
 
 def render_sarif(evaluation: Evaluation) -> str:
@@ -40,7 +40,7 @@ def render_sarif(evaluation: Evaluation) -> str:
             {
                 "tool": {
                     "driver": {
-                        "name": "AgentScope",
+                        "name": "wakIndex",
                         "informationUri": "https://github.com/",
                         "rules": [rules[key] for key in sorted(rules)],
                     }

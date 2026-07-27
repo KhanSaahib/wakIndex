@@ -2,8 +2,8 @@
 
 from pathlib import Path
 
-from agentscope.models import Finding, Manifest
-from agentscope.policy import Policy, evaluate
+from wakindex.models import Finding, Manifest
+from wakindex.policy import Policy, evaluate
 
 
 def finding(permission: str) -> Finding:

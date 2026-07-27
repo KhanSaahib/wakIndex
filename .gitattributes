@@ -1,0 +1,3 @@
+# Description: Cross-platform line-ending rules for executable and container files.
+*.sh text eol=lf
+Dockerfile text eol=lf

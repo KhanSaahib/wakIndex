@@ -1,0 +1,2 @@
+# Description: Repository-relative paths excluded from wakIndex's own inventory.
+tests/fixtures/**

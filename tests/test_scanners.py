@@ -2,7 +2,7 @@
 
 from pathlib import Path
 
-from agentscope.scanners import scan_repository
+from wakindex.scanners import scan_repository
 
 FIXTURES = Path(__file__).parent / "fixtures"
 
@@ -43,5 +43,5 @@ def test_repository_ignore_file_excludes_matching_fixtures(tmp_path: Path) -> No
     ignored = tmp_path / "tests" / "fixtures" / ".mcp.json"
     ignored.parent.mkdir(parents=True)
     ignored.write_text('{"servers":{"risky":{"command":"bash"}}}', encoding="utf-8")
-    (tmp_path / ".agentscopeignore").write_text("tests/fixtures/**\n", encoding="utf-8")
+    (tmp_path / ".wakindexignore").write_text("tests/fixtures/**\n", encoding="utf-8")
     assert not scan_repository(tmp_path).findings

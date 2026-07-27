@@ -1,4 +1,4 @@
-# Contributing to AgentScope
+# Contributing to wakIndex
 
 ## Description
 
@@ -12,8 +12,7 @@ Run:
 python -m pip install -e ".[dev]"
 pytest
 ruff check .
-docker build --target test -t agentscope-test .
+docker build --target test -t wakindex-test .
 ```
 
 Changes should keep manifests deterministic and update the architecture document when adding a new permission category.
-
