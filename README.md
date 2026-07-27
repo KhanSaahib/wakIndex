@@ -17,10 +17,9 @@ wakindex ui --policy wakindex-policy.toml
 ```
 
 The UI opens at `http://127.0.0.1:8765` and provides Allow/Deny radio controls for each permission. It does not contact an external service.
-Every CLI invocation displays the two-part `WAK` / `INDEX` terminal banner. JSON and SARIF remain
-clean machine-readable stdout because startup branding is written to the terminal error stream.
-The startup panel includes a short project description, common commands, and a divider before
-the selected command's output.
+`wakindex init` displays the two-part `WAK` / `INDEX` startup panel with a short project
+description, common commands, and an output divider. Other commands and root help stay compact;
+JSON and SARIF remain clean machine-readable output.
 
 ## What it finds
 

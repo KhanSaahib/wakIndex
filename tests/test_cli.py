@@ -58,32 +58,22 @@ def test_init_refuses_to_overwrite_existing_policy(tmp_path: Path) -> None:
     assert policy.read_text(encoding="utf-8") == "# keep me\n"
 
 
-def test_text_scan_displays_product_identity(capsys) -> None:
+def test_text_scan_does_not_display_startup_panel(capsys) -> None:
     exit_code = main(["scan", str(FIXTURES / "safe_repo"), "--format", "text"])
     captured = capsys.readouterr()
 
     assert exit_code == 0
-    assert CLI_BANNER in captured.err
-    assert PROJECT_DESCRIPTION in captured.err
-    assert COMMAND_GUIDE in captured.err
-    assert f"{PANEL_DIVIDER}\n\n" in captured.err
-    assert "PERMISSION SNAKE" not in captured.err
+    assert captured.err == ""
     assert CLI_BANNER not in captured.out
-    captured.err.encode("utf-8", errors="strict")
 
 
-def test_help_displays_the_two_part_wakindex_banner(capsys) -> None:
+def test_help_does_not_display_startup_panel(capsys) -> None:
     with pytest.raises(SystemExit) as exit_info:
         main(["--help"])
 
     output = capsys.readouterr().out
     assert exit_info.value.code == 0
-    assert CLI_BANNER in output
-    assert PROJECT_DESCRIPTION in output
-    assert COMMAND_GUIDE in output
-    assert PANEL_DIVIDER in output
-    assert "██╗    ██╗" in output
-    assert "██╗███╗   ██╗" in output
+    assert CLI_BANNER not in output
     assert "scan" in output
 
 
@@ -94,7 +84,20 @@ def test_json_scan_remains_machine_readable_without_banner(capsys) -> None:
     assert exit_code == 0
     assert json.loads(captured.out)["schema_version"] == "1.0"
     assert CLI_BANNER not in captured.out
+    assert captured.err == ""
+
+
+def test_init_displays_complete_startup_panel(tmp_path: Path, capsys) -> None:
+    policy = tmp_path / "wakindex-policy.toml"
+    exit_code = main(["init", "--policy", str(policy)])
+    captured = capsys.readouterr()
+
+    assert exit_code == 0
     assert CLI_BANNER in captured.err
+    assert PROJECT_DESCRIPTION in captured.err
+    assert COMMAND_GUIDE in captured.err
+    assert f"{PANEL_DIVIDER}\n\n" in captured.err
+    assert "Created policy:" in captured.out
 
 
 def test_startup_panel_ends_with_newline_after_divider() -> None:
