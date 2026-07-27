@@ -1,12 +1,12 @@
-# wakIndex Agent Instructions
+# wakindex Agent Instructions
 
 ## Description
 
-This file is the durable handoff reference for any coding agent working on wakIndex. Read it before changing the repository.
+This file is the durable handoff reference for any coding agent working on wakindex. Read it before changing the repository.
 
 ## Product contract
 
-wakIndex is a local-first, deterministic permission inventory and policy checker for AI agents, MCP servers, skills, and GitHub Actions. It must work without an LLM, network access, or API keys. Static analysis must never execute discovered commands and must never record secret values.
+wakindex is a local-first, deterministic permission inventory and policy checker for AI agents, MCP servers, skills, and GitHub Actions. It must work without an LLM, network access, or API keys. Static analysis must never execute discovered commands and must never record secret values.
 
 ## Architecture
 

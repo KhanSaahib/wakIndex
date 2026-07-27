@@ -1,14 +1,14 @@
 # Description: GitHub Docker Action metadata for pull-request permission policy checks.
-name: wakIndex permission review
+name: wakindex permission review
 description: Inventory AI agent, MCP, skill, and GitHub token permissions before they run.
-author: wakIndex contributors
+author: wakindex contributors
 inputs:
   path:
     description: Repository path to scan.
     required: false
     default: .
   policy:
-    description: wakIndex TOML policy path.
+    description: wakindex TOML policy path.
     required: false
     default: wakindex-policy.toml
   output:

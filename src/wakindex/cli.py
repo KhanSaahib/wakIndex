@@ -52,7 +52,7 @@ def _parser() -> argparse.ArgumentParser:
         description=PROJECT_DESCRIPTION,
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
-    parser.add_argument("--version", action="version", version="wakIndex 0.1.0")
+    parser.add_argument("--version", action="version", version="wakindex 0.1.0")
     commands = parser.add_subparsers(dest="command", required=True)
 
     scan = commands.add_parser("scan", help="create a permission inventory")

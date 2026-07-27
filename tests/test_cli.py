@@ -77,6 +77,15 @@ def test_help_does_not_display_startup_panel(capsys) -> None:
     assert "scan" in output
 
 
+def test_version_uses_lowercase_product_name(capsys) -> None:
+    with pytest.raises(SystemExit) as exit_info:
+        main(["--version"])
+
+    output = capsys.readouterr().out
+    assert exit_info.value.code == 0
+    assert output == "wakindex 0.1.0\n"
+
+
 def test_json_scan_remains_machine_readable_without_banner(capsys) -> None:
     exit_code = main(["scan", str(FIXTURES / "safe_repo"), "--format", "json"])
     captured = capsys.readouterr()

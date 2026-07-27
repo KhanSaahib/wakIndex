@@ -1,4 +1,4 @@
-# Description: Dogfoods wakIndex as a pull-request permission policy gate.
+# Description: Dogfoods wakindex as a pull-request permission policy gate.
 name: Agent permission review
 on:
   pull_request:

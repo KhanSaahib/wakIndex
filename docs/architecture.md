@@ -1,4 +1,4 @@
-# wakIndex Architecture
+# wakindex Architecture
 
 ## Description
 
@@ -10,7 +10,7 @@ Agent configurations are workload definitions spread across JSON, Markdown, YAML
 
 ## Threat model
 
-wakIndex assumes the scanned repository may be malicious. It protects the reviewer by:
+wakindex assumes the scanned repository may be malicious. It protects the reviewer by:
 
 - performing static analysis only;
 - recording environment variable names, never values;

@@ -1,4 +1,4 @@
-# Contributing to wakIndex
+# Contributing to wakindex
 
 ## Description
 

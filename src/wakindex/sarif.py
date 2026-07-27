@@ -40,7 +40,7 @@ def render_sarif(evaluation: Evaluation) -> str:
             {
                 "tool": {
                     "driver": {
-                        "name": "wakIndex",
+                        "name": "wakindex",
                         "informationUri": "https://github.com/",
                         "rules": [rules[key] for key in sorted(rules)],
                     }

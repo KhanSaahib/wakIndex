@@ -2,7 +2,7 @@
 
 ## Description
 
-This file records user-visible changes for wakIndex releases.
+This file records user-visible changes for wakindex releases.
 
 ## 0.1.0 - Unreleased
 

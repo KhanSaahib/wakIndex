@@ -1,6 +1,6 @@
-"""Description: Canonical two-part wakIndex banner shared by human-facing interfaces."""
+"""Description: Canonical two-part wakindex banner shared by human-facing interfaces."""
 
-PRODUCT_NAME = "wakIndex"
+PRODUCT_NAME = "wakindex"
 PRODUCT_TAGLINE = "Inventory first. Grant less. Run safer."
 PROJECT_DESCRIPTION = (
     "Inventory and policy-check permissions for AI agents, MCP servers, and skills."

@@ -1,5 +1,5 @@
 #!/bin/sh
-# Description: Maps GitHub Action inputs to the wakIndex CLI and preserves normal CLI use.
+# Description: Maps GitHub Action inputs to the wakindex CLI and preserves normal CLI use.
 set -eu
 
 if [ "${GITHUB_ACTIONS:-}" = "true" ]; then

@@ -28,9 +28,9 @@ def _page(permissions: list[str], policy: Policy, message: str = "") -> bytes:
             )
         )
     document = f"""<!doctype html>
-<!-- Description: Local wakIndex policy editor rendered without external assets. -->
+<!-- Description: Local wakindex policy editor rendered without external assets. -->
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width">
-<title>wakIndex · Permission control center</title>
+<title>wakindex · Permission control center</title>
 <style>
 :root{{font:16px system-ui;color:#17212b;background:#eef3f6}}body{{max-width:960px;margin:3rem auto;padding:0 1rem}}
 main{{background:white;border:1px solid #dbe3e8;border-radius:18px;overflow:hidden;box-shadow:0 18px 50px #18304218}}
@@ -94,7 +94,7 @@ def serve(root: Path, policy_path: Path, port: int, open_browser: bool) -> int:
     try:
         server.serve_forever()
     except KeyboardInterrupt:
-        print("\nStopped wakIndex policy editor")
+        print("\nStopped wakindex policy editor")
     finally:
         server.server_close()
     return 0
