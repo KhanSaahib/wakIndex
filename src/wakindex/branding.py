@@ -26,7 +26,9 @@ CLI_BANNER = """
 ██║██║╚██╗██║██║  ██║██╔══╝   ██╔██╗
 ██║██║ ╚████║██████╔╝███████╗██╔╝ ██╗
 ╚═╝╚═╝  ╚═══╝╚═════╝ ╚══════╝╚═╝  ╚═╝
-""".strip("\n")
+\n
+Inventory first. Grant less. Run safer.
+""".strip("\n\n")
 
 
 def terminal_banner(width: int | None = None) -> str:
