@@ -5,7 +5,13 @@ from pathlib import Path
 
 import pytest
 
-from wakindex.branding import CLI_BANNER
+from wakindex.branding import (
+    CLI_BANNER,
+    COMMAND_GUIDE,
+    PANEL_DIVIDER,
+    PROJECT_DESCRIPTION,
+    terminal_banner,
+)
 from wakindex.cli import main
 
 FIXTURES = Path(__file__).parent / "fixtures"
@@ -58,6 +64,9 @@ def test_text_scan_displays_product_identity(capsys) -> None:
 
     assert exit_code == 0
     assert CLI_BANNER in captured.err
+    assert PROJECT_DESCRIPTION in captured.err
+    assert COMMAND_GUIDE in captured.err
+    assert f"{PANEL_DIVIDER}\n\n" in captured.err
     assert "PERMISSION SNAKE" not in captured.err
     assert CLI_BANNER not in captured.out
     captured.err.encode("utf-8", errors="strict")
@@ -70,6 +79,9 @@ def test_help_displays_the_two_part_wakindex_banner(capsys) -> None:
     output = capsys.readouterr().out
     assert exit_info.value.code == 0
     assert CLI_BANNER in output
+    assert PROJECT_DESCRIPTION in output
+    assert COMMAND_GUIDE in output
+    assert PANEL_DIVIDER in output
     assert "██╗    ██╗" in output
     assert "██╗███╗   ██╗" in output
     assert "scan" in output
@@ -83,3 +95,9 @@ def test_json_scan_remains_machine_readable_without_banner(capsys) -> None:
     assert json.loads(captured.out)["schema_version"] == "1.0"
     assert CLI_BANNER not in captured.out
     assert CLI_BANNER in captured.err
+
+
+def test_startup_panel_ends_with_newline_after_divider() -> None:
+    panel = terminal_banner()
+
+    assert panel.endswith(f"{PANEL_DIVIDER}\n")

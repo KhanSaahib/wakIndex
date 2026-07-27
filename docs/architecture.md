@@ -32,9 +32,9 @@ repository files -> format scanners -> normalized findings -> manifest
 ## Human interfaces
 
 `branding.py` supplies the canonical two-part WAK / INDEX banner for CLI help and terminal
-startup. The banner is written to stderr so JSON and SARIF stdout remain valid for automation.
-The loopback browser editor uses a restrained text identity without external fonts, scripts, or
-assets.
+startup, followed by a description, quick-start commands, and output divider. The panel is written
+to stderr so JSON and SARIF stdout remain valid for automation. The loopback browser editor uses a
+restrained text identity without external fonts, scripts, or assets.
 
 ## Permission taxonomy
 
