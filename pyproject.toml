@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "wakindex-security"
-version = "0.1.0"
+dynamic = ["version"]
 description = "Inventory and policy-check permissions for AI agents, MCP servers, and skills."
 readme = "README.md"
 requires-python = ">=3.11"
@@ -30,6 +30,9 @@ wakindex = "wakindex.cli:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/wakindex"]
+
+[tool.hatch.version]
+path = "src/wakindex/__init__.py"
 
 [tool.pytest.ini_options]
 addopts = "-q"

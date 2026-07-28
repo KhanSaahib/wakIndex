@@ -2,63 +2,126 @@
 
 ## Description
 
-This document records product scope, threat model, design decisions, and extension points for maintainers.
+This document defines wakindex's system boundaries, data flow, security invariants, component
+responsibilities, and extension contract.
 
-## Problem statement
+## Goals and non-goals
 
-Agent configurations are workload definitions spread across JSON, Markdown, YAML, and environment references. Reviewers need a stable answer to: what can run, what can it reach, which credentials can it inherit, and does that exceed policy?
+wakindex answers four pre-execution questions:
 
-## Threat model
+1. Which processes, tools, and network endpoints can an agent configuration invoke?
+2. Which files, environment-variable names, and GitHub token permissions can it reach?
+3. Which normalized permissions does that imply?
+4. Does the inventory comply with a repository-owned policy?
 
-wakindex assumes the scanned repository may be malicious. It protects the reviewer by:
+wakindex is a static reviewer. It does not execute agents or MCP servers, fetch remote tool
+descriptions, resolve live cloud IAM, prove runtime behavior, or replace sandboxing and identity
+controls.
 
-- performing static analysis only;
-- recording environment variable names, never values;
-- resolving paths without traversing symlinks outside the scan root;
-- binding the UI to loopback;
-- using exact, testable policy rules rather than probabilistic classification.
+## Trust boundaries
 
-It does not prove runtime behavior, inspect remote MCP implementations, validate IAM policies against cloud APIs, or replace sandboxing.
+The repository being scanned is untrusted. Configuration text, Markdown, paths, workflow YAML,
+and environment references may be intentionally malicious. The local policy and wakindex process
+are trusted inputs controlled by the reviewer.
 
-## Data flow
+Security invariants:
+
+- discovered commands are represented as evidence and never executed;
+- environment-variable names may be recorded, but values are never read;
+- symlinks and resolved paths outside the scan root are not traversed;
+- manifest ordering is deterministic and excludes runtime timestamps;
+- policy deny rules take precedence over allow rules;
+- the policy editor binds only to `127.0.0.1`;
+- malformed or unsupported inputs fail closed where policy is concerned and do not crash a scan.
+
+## Processing pipeline
 
 ```text
-repository files -> format scanners -> normalized findings -> manifest
-                                                    |-> TOML policy -> decision
-                                                    |-> terminal / JSON / SARIF
-                                                    |-> local policy editor
+untrusted repository
+        |
+        v
+candidate discovery --> format scanners --> normalized Finding values
+                                                |
+                                                v
+                                      deterministic Manifest
+                                         /             \
+                                        v               v
+                                 JSON / text / SARIF   TOML policy
+                                                          |
+                                                          v
+                                                  pass or violations
 ```
 
-## Human interfaces
+## Component responsibilities
 
-`branding.py` supplies the canonical two-part WAK / INDEX panel for `wakindex init`, followed by a
-description, quick-start commands, and output divider. Scan, check, UI, and root help do not emit
-the panel. The loopback browser editor uses a restrained text identity without external fonts,
-scripts, or assets.
+| Component | Responsibility | Must not do |
+| --- | --- | --- |
+| `scanners.py` | Discover supported files and extract permission evidence | Execute commands, read secrets, or escape the root |
+| `models.py` | Define stable `Finding` and `Manifest` serialization | Add volatile runtime state |
+| `policy.py` | Load TOML and apply deny, allow, then default | Infer intent probabilistically |
+| `sarif.py` | Translate violations to SARIF 2.1 | Change policy decisions |
+| `cli.py` | Validate arguments, select output, and return stable exit codes | Pollute JSON or SARIF stdout |
+| `ui.py` | Edit explicit allow/deny choices on loopback | Contact remote services |
+| `release.py` | Match immutable SemVer tags to the package version | Publish or mutate tags |
+
+## Data model and compatibility
+
+A finding contains:
+
+- a normalized permission ID such as `process.execute`;
+- the affected resource;
+- a repository-relative source path;
+- bounded human-readable evidence;
+- a risk level;
+- optional structured metadata.
+
+The manifest schema version is independent from the package version. Within a package major
+version, existing fields and permission meanings remain compatible. An incompatible schema change
+requires a new schema version, migration guidance, fixtures for both behaviors where practical,
+and a changelog entry.
 
 ## Permission taxonomy
 
-Findings use `category.action` identifiers:
+Current permission IDs:
 
-- `process.execute` and `process.shell`
-- `filesystem.read`, `filesystem.write`, and `filesystem.outside_workspace`
-- `network.access`
-- `secrets.inherit`
-- `github.token`
-- `agent.unrestricted`
+- `process.execute` and `process.shell`;
+- `filesystem.read`, `filesystem.write`, and `filesystem.outside_workspace`;
+- `network.access`;
+- `secrets.inherit`;
+- `github.token`;
+- `agent.unrestricted`.
 
-Each finding includes source evidence, a risk level, and structured metadata. Policies allow exact IDs or category wildcards such as `filesystem.*`.
+Policies accept exact IDs and category wildcards such as `filesystem.*`. Explicit deny always wins,
+then explicit allow, then the configured default.
 
 ## Supported inputs
 
-- `.claude/settings.json`, `.claude/settings.local.json`, and compatible permission blocks
-- `.vscode/mcp.json`, `.mcp.json`, and `mcp.json`
-- `.agents/skills/**/SKILL.md`, `.claude/skills/**/SKILL.md`, and `skills/**/SKILL.md`
-- `.github/workflows/*.yml` and `*.yaml`
-- `${NAME}`, `$NAME`, and `%NAME%` environment references in MCP configuration
+- Claude-style `.claude/settings.json` and `.claude/settings.local.json`;
+- VS Code and generic `.vscode/mcp.json`, `.mcp.json`, and `mcp.json`;
+- `.agents/skills/**/SKILL.md`, `.claude/skills/**/SKILL.md`, and `skills/**/SKILL.md`;
+- `.github/workflows/*.yml` and `*.yaml`;
+- `${NAME}`, `$NAME`, and `%NAME%` environment references in MCP configuration.
 
-Repository-relative glob patterns in `.wakindexignore` exclude known fixtures or generated content.
+Repository-relative globs in `.wakindexignore` exclude intentional fixtures or generated content.
+Ignore rules are a reviewer decision and therefore part of the trusted configuration boundary.
 
-## Extension model
+## Failure behavior
 
-Add a scanner that returns `Finding` values, register it in `scan_repository`, and introduce a realistic fixture. Avoid vendor-specific fields in the core model; put them in finding metadata.
+- unreadable or malformed candidate files are skipped without executing fallback logic;
+- a missing policy causes `check` to fail with exit code `1`;
+- policy violations return exit code `2`;
+- compliant scans return `0`;
+- machine formats remain valid on stdout, with diagnostics sent to stderr.
+
+## Extension contract
+
+To support a new ecosystem:
+
+1. add a scanner that returns normalized `Finding` values;
+2. register it in `scan_repository`;
+3. add sanitized safe and adversarial fixtures;
+4. test determinism, path containment, and secret-value safety;
+5. extend the taxonomy only when existing permission IDs cannot express the capability;
+6. update this document, README, and changelog.
+
+Vendor-specific details belong in finding metadata rather than the core manifest schema.

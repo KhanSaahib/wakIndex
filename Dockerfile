@@ -14,9 +14,12 @@ CMD ["--help"]
 
 FROM base AS test
 COPY tests ./tests
+COPY scripts ./scripts
+COPY .github/workflows/release.yml ./.github/workflows/release.yml
+COPY .gitignore ./.gitignore
 RUN python -m pip install --no-cache-dir ".[dev]"
-RUN pytest && ruff check .
-ENTRYPOINT ["pytest"]
+RUN python -m pytest && python -m ruff check .
+ENTRYPOINT ["python", "-m", "pytest"]
 CMD []
 
 FROM base AS runtime

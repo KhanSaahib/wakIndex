@@ -1,6 +1,9 @@
 # Description: Excludes local state and build products from the Docker context.
 .git
-.github
+.github/*
+!.github/workflows/
+.github/workflows/*
+!.github/workflows/release.yml
 .venv
 __pycache__
 .pytest_cache

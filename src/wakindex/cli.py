@@ -7,6 +7,7 @@ import sys
 from collections.abc import Sequence
 from pathlib import Path
 
+from wakindex import __version__
 from wakindex.branding import PROJECT_DESCRIPTION, terminal_banner
 from wakindex.models import Manifest
 from wakindex.policy import Policy, evaluate
@@ -52,7 +53,7 @@ def _parser() -> argparse.ArgumentParser:
         description=PROJECT_DESCRIPTION,
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
-    parser.add_argument("--version", action="version", version="wakindex 0.1.0")
+    parser.add_argument("--version", action="version", version=f"wakindex {__version__}")
     commands = parser.add_subparsers(dest="command", required=True)
 
     scan = commands.add_parser("scan", help="create a permission inventory")
