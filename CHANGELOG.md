@@ -2,11 +2,22 @@
 
 ## Description
 
-This file records user-visible changes for wakindex releases.
+All notable user-visible changes to wakindex are recorded here. The format follows
+[Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and releases follow
+[Semantic Versioning](https://semver.org/).
 
-## 0.1.0 - Unreleased
+## [Unreleased]
 
-- Initial local-first scanner, policy engine, CLI, SARIF output, permission editor, Docker image, and GitHub Action.
-- Added the two-part WAK / INDEX terminal banner and a restrained browser product heading.
-- Added a concise description, quick-start commands, and an output divider to the CLI startup panel.
-- Limited the startup panel to `wakindex init` so scan, check, UI, and help output stay compact.
+### Added
+
+- Local-first scanner, policy engine, CLI, SARIF output, browser policy editor, Docker image, and
+  GitHub Action.
+- Tag-driven GitHub Release workflow with wheel artifacts and SHA-256 checksums.
+- Explicit SemVer, changelog, and release process in `RELEASE.md`.
+- Two-part WAK / INDEX panel with init guidance.
+
+### Changed
+
+- Standardized the product name as lowercase `wakindex`.
+- Limited the startup panel to `wakindex init` so scan, check, UI, and help remain compact.
+- Expanded architecture, contribution, security, and user documentation.
