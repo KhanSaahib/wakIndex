@@ -13,6 +13,8 @@ ENTRYPOINT ["/docker-entrypoint.sh"]
 CMD ["--help"]
 
 FROM base AS test
+ENV PYTHONPATH=/opt/wakindex
+COPY scripts ./scripts
 COPY tests ./tests
 RUN python -m pip install --no-cache-dir ".[dev]"
 RUN pytest && ruff check .

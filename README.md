@@ -1,79 +1,168 @@
 # wakindex
 
-> Static permission inventory and policy gates for AI agents, MCP servers, skills, and GitHub Actions.
+> Review permissions for AI agents, MCP servers, skills, and GitHub Actions before they run.
 
 ## Description
 
-wakindex treats agent configuration like a production workload definition. It creates a readable permission manifest, checks it against team policy, and can block a pull request before an over-privileged agent runs. Analysis is deterministic, local, and requires no LLM, API key, or network access.
+wakindex treats agent configuration like a production workload definition. It statically inventories process execution, filesystem reach, remote access, inherited credential names, agent bypass modes, and GitHub token scopes. The resulting manifest can be reviewed by a person or enforced by policy in a pull request.
+
+Core analysis is deterministic and local. It does not need an LLM, API key, cloud account, or network connection, and it never launches discovered tools.
+
+## Install
+
+wakindex requires Python 3.11 or newer:
+
+```bash
+git clone https://github.com/KhanSaahib/AgentScope.git
+cd AgentScope
+python -m pip install .
+wakindex --version
+```
+
+For isolated installation from a checkout, `pipx install .` is also supported.
 
 ## Quick start
 
 ```bash
-python -m pip install .
 wakindex init
+wakindex scan . --format text
 wakindex scan . --output wakindex-manifest.json
 wakindex check . --policy wakindex-policy.toml
-wakindex ui --policy wakindex-policy.toml
+wakindex ui . --policy wakindex-policy.toml
 ```
 
-The UI opens at `http://127.0.0.1:8765` and provides Allow/Deny radio controls for each permission. It does not contact an external service.
-`wakindex init` displays the two-part `WAK` / `INDEX` startup panel with a short project
-description, common commands, and an output divider. Other commands and root help stay compact;
-JSON and SARIF remain clean machine-readable output.
+`scan` inventories declared capabilities. `check` applies policy and exits `0` when compliant, `2` for policy violations, and `1` for operational errors.
 
-## What it finds
+The optional policy editor listens only on `http://127.0.0.1:8765`. It presents explicit Allow/Deny radio controls and uses no external scripts, fonts, services, or credentials.
 
-- MCP process commands, arguments, remote URLs, and inherited environment variable names
-- Claude-style allowed/denied tools and unsafe unrestricted modes
-- skill instructions that declare tools or risky shell/network behavior
-- GitHub Actions token permissions, including write and broad scopes
-- filesystem paths that appear to escape the repository
+## What it detects
 
-wakindex never executes discovered commands and never emits environment variable values.
-Use `.wakindexignore` with repository-relative glob patterns for known fixtures or generated files.
+- MCP process commands, arguments, remote endpoints, and environment references;
+- Claude-style allowed tools and permission-bypass modes;
+- skill declarations with shell, network, or credential exposure;
+- GitHub Actions token permissions, including write and broad scopes;
+- paths that appear to escape the repository workspace.
+
+Secret findings contain environment-variable names only, never their values. URLs and commands are recorded as evidence but are not opened or executed.
+
+Supported configuration currently includes Claude settings, VS Code and generic MCP JSON, `SKILL.md`, and GitHub workflow YAML. Use `.wakindexignore` with repository-relative glob patterns to exclude known fixtures or generated content.
+
+## Permission manifest
+
+JSON output is stable and designed for code review:
+
+```json
+{
+  "schema_version": "1.0",
+  "root": ".",
+  "summary": {
+    "high": 1,
+    "low": 0,
+    "medium": 1,
+    "total": 2
+  },
+  "findings": [
+    {
+      "permission": "process.execute",
+      "resource": "docs",
+      "source": ".vscode/mcp.json",
+      "evidence": "command: python",
+      "risk": "medium",
+      "metadata": {
+        "command": "python"
+      }
+    }
+  ]
+}
+```
+
+Each finding explains the permission, affected resource, evidence source, risk, and structured metadata.
 
 ## Policy
 
-`wakindex init` creates a conservative TOML policy:
+`wakindex init` creates a conservative TOML policy. Exact IDs and category wildcards are supported:
 
 ```toml
-# wakindex policy: exact IDs and "category.*" wildcards are supported.
+# Deny rules take precedence over allow rules.
 default = "deny"
-allow = ["filesystem.read"]
-deny = ["agent.unrestricted", "process.shell", "filesystem.outside_workspace"]
+allow = ["filesystem.read", "process.execute"]
+deny = [
+  "agent.unrestricted",
+  "filesystem.outside_workspace",
+  "process.shell",
+]
 ```
 
-`wakindex check` exits `0` when compliant and `2` on policy violations. Use `--format sarif --output wakindex.sarif` for code-scanning integrations.
+Evaluation order is explicit deny, explicit allow, then default. A deny-default policy makes newly detected capabilities visible instead of silently accepting them.
+
+For code-scanning integrations:
+
+```bash
+wakindex check . \
+  --policy wakindex-policy.toml \
+  --format sarif \
+  --output wakindex.sarif
+```
 
 ## GitHub Action
 
+Add the policy file to your repository, then pin a full release tag:
+
 ```yaml
-- uses: your-org/wakindex@v1
-  with:
-    path: .
-    policy: wakindex-policy.toml
+name: Agent permission review
+on:
+  pull_request:
+permissions:
+  contents: read
+  security-events: write
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # Replace vX.Y.Z with a published release.
+      - uses: KhanSaahib/AgentScope@vX.Y.Z
+        with:
+          path: .
+          policy: wakindex-policy.toml
+          output: wakindex.sarif
 ```
 
-The included Docker action runs consistently on Linux GitHub runners. A ready-to-copy workflow lives in `.github/workflows/wakindex.yml`.
+The Docker Action runs on Linux GitHub runners. Pin a full version or commit SHA in security-sensitive repositories.
 
 ## Docker
 
 ```bash
 docker build -t wakindex .
-docker run --rm -v "$PWD:/workspace" wakindex check /workspace --policy /workspace/wakindex-policy.toml
+docker run --rm -v "$PWD:/workspace" \
+  wakindex check /workspace --policy /workspace/wakindex-policy.toml
+```
+
+Run the complete containerized test target with:
+
+```bash
 docker build --target test -t wakindex-test .
 docker run --rm wakindex-test
 ```
 
-## Development
+## Security model and limitations
+
+wakindex statically reviews declarations. It cannot prove what a remote MCP server does, expand live cloud IAM roles, or replace runtime isolation. Treat its manifest as a preflight permission review and combine it with sandboxing, short-lived credentials, least privilege, and runtime monitoring.
+
+See [architecture](docs/architecture.md) for trust boundaries and extension rules, and [security policy](docs/security.md) for vulnerability reporting.
+
+## Development and releases
 
 ```bash
 python -m pip install -e ".[dev]"
 pytest
 ruff check .
+docker build --target test -t wakindex-test .
 ```
 
-See `AGENTS.md` for the durable maintainer handoff and `docs/architecture.md` for scope and design.
+Contributions should include sanitized fixtures and behavior-focused tests. See [CONTRIBUTING.md](CONTRIBUTING.md).
+
+wakindex follows Semantic Versioning and publishes immutable tag-driven GitHub releases with Python artifacts and checksums. See [RELEASE.md](RELEASE.md) and [CHANGELOG.md](CHANGELOG.md).
 
 ## Security references
 
@@ -81,4 +170,4 @@ The permission model is informed by the OWASP AI Security Verification Standard,
 
 ## License
 
-Apache-2.0. See `LICENSE`.
+Apache-2.0. See [LICENSE](LICENSE).

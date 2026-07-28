@@ -1,3 +1,6 @@
-# Description: Cross-platform line-ending rules for executable and container files.
+# Description: Normalizes repository text while preserving executable shell-script line endings.
+* text=auto
 *.sh text eol=lf
 Dockerfile text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf

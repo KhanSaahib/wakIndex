@@ -5,6 +5,7 @@ from pathlib import Path
 
 import pytest
 
+from wakindex import __version__
 from wakindex.branding import (
     CLI_BANNER,
     COMMAND_GUIDE,
@@ -83,7 +84,7 @@ def test_version_uses_lowercase_product_name(capsys) -> None:
 
     output = capsys.readouterr().out
     assert exit_info.value.code == 0
-    assert output == "wakindex 0.1.0\n"
+    assert output == f"wakindex {__version__}\n"
 
 
 def test_json_scan_remains_machine_readable_without_banner(capsys) -> None:
