@@ -5,8 +5,8 @@ from pathlib import Path
 
 import pytest
 
-from scripts.check_release import ReleaseValidationError, validate_release_tag
 from wakindex import __version__
+from wakindex.release import ReleaseValidationError, validate_release_tag
 
 ROOT = Path(__file__).parents[1]
 

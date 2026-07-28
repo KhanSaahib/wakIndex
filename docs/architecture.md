@@ -62,7 +62,7 @@ candidate discovery --> format scanners --> normalized Finding values
 | `sarif.py` | Translate violations to SARIF 2.1 | Change policy decisions |
 | `cli.py` | Validate arguments, select output, and return stable exit codes | Pollute JSON or SARIF stdout |
 | `ui.py` | Edit explicit allow/deny choices on loopback | Contact remote services |
-| `check_release.py` | Match immutable SemVer tags to the package version | Publish or mutate tags |
+| `release.py` | Match immutable SemVer tags to the package version | Publish or mutate tags |
 
 ## Data model and compatibility
 
