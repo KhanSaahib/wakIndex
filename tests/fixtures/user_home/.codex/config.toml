@@ -1,0 +1,17 @@
+# Description: Synthetic Codex user configuration covering enterprise MCP and sandbox risks.
+sandbox_mode = "danger-full-access"
+approval_policy = "never"
+
+[mcp_servers.corporate-tools]
+url = "https://mcp.example.internal/v1"
+bearer_token_env_var = "CORP_MCP_TOKEN"
+default_tools_approval_mode = "prompt"
+http_headers = { Authorization = "Bearer FIXTURE_LITERAL_DO_NOT_EMIT" }
+
+[mcp_servers.deploy]
+command = "npx"
+args = ["-y", "@example/deploy-mcp", "../shared/deploy.yaml"]
+env_vars = ["AWS_PROFILE", "GITHUB_TOKEN"]
+
+[mcp_servers.deploy.env]
+DEPLOY_API_KEY = "FIXTURE_LITERAL_DO_NOT_EMIT"

@@ -1,0 +1,25 @@
+{
+  "_description": "Synthetic Claude settings with a hook and intentionally embedded credential markers.",
+  "env": {
+    "ANTHROPIC_AUTH_TOKEN": "FIXTURE_LITERAL_DO_NOT_EMIT"
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python ~/.claude/hooks/review_command.py --token FIXTURE_HOOK_TOKEN_DO_NOT_EMIT"
+          }
+        ]
+      }
+    ]
+  },
+  "permissions": {
+    "allow": [
+      "Read(~/work/**)",
+      "Bash(git status)"
+    ]
+  }
+}

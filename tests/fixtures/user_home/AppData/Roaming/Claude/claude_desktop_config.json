@@ -1,0 +1,9 @@
+{
+  "_description": "Synthetic Claude Desktop MCP configuration with a local filesystem server.",
+  "mcpServers": {
+    "desktop-files": {
+      "command": "python",
+      "args": ["-m", "desktop_files"]
+    }
+  }
+}

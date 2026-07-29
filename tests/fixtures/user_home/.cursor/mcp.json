@@ -1,0 +1,11 @@
+{
+  "_description": "Synthetic Cursor user MCP configuration with a remote issue tracker.",
+  "mcpServers": {
+    "issue-tracker": {
+      "url": "https://issues.example.com/mcp",
+      "env": {
+        "ISSUE_TRACKER_TOKEN": "${ISSUE_TRACKER_TOKEN}"
+      }
+    }
+  }
+}

@@ -44,12 +44,23 @@ button{{margin-top:1.3rem;background:#087f5b;color:white;border:0;border-radius:
 </style></head><body><main><header class="hero"><p class="brand">{html.escape(PRODUCT_NAME)}</p>
 <p class="tagline">{html.escape(PRODUCT_TAGLINE)}</p></header><section class="content">
 <h1>Permission control center</h1>
-<p class="note">Choose an explicit policy for every permission discovered locally. Deny is selected by default.</p>
+<p class="note">Choose a permission-wide default for each finding. Scoped TOML rules are preserved.</p>
 {f'<p class="message">{html.escape(message)}</p>' if message else ""}
 <form method="post"><table><thead><tr><th>Permission</th><th colspan="2">Decision</th></tr></thead>
 <tbody>{"".join(rows)}</tbody></table><button type="submit">Save policy</button></form>
 </section></main></body></html>"""
     return document.encode("utf-8")
+
+
+def _updated_policy(permissions: list[str], allowed: tuple[str, ...], policy: Policy) -> Policy:
+    """Apply UI choices to legacy arrays without discarding scoped rules."""
+    allowed_set = set(allowed)
+    return Policy(
+        default="deny",
+        allow=tuple(item for item in permissions if item in allowed_set),
+        deny=tuple(item for item in permissions if item not in allowed_set),
+        rules=policy.rules,
+    )
 
 
 def serve(root: Path, policy_path: Path, port: int, open_browser: bool) -> int:
@@ -70,11 +81,10 @@ def serve(root: Path, policy_path: Path, port: int, open_browser: bool) -> int:
             nonlocal policy
             length = min(int(self.headers.get("Content-Length", "0")), 64_000)
             form = urllib.parse.parse_qs(self.rfile.read(length).decode("utf-8"))
-            allowed = tuple(
+            selected = tuple(
                 item for item in permissions if form.get(f"permission:{item}") == ["allow"]
             )
-            denied = tuple(item for item in permissions if item not in allowed)
-            policy = Policy(default="deny", allow=allowed, deny=denied)
+            policy = _updated_policy(permissions, selected, policy)
             policy.write(policy_path)
             body = _page(permissions, policy, f"Saved {policy_path}")
             self.send_response(200)

@@ -20,8 +20,13 @@ issue for an undisclosed vulnerability and never include live credentials or cus
 ## Security boundaries
 
 wakindex scans untrusted text without executing configured agents, tools, or MCP commands.
-Secret detection stores names only. The browser editor listens on `127.0.0.1` and writes only the
-explicitly selected policy path.
+Secret detection stores names only. Embedded-credential detection reports the environment or
+header field name and discards its value. User audits check only documented configuration paths,
+skip symlinks, and replace the audited home prefix with `~` in evidence and metadata. They do not
+crawl arbitrary profile files.
+
+The browser editor listens on `127.0.0.1` and writes only the explicitly selected policy path.
+Scoped rules are preserved when the editor changes legacy permission-wide choices.
 
 wakindex does not validate remote server behavior, live cloud IAM, or runtime sandbox enforcement.
 See `docs/architecture.md` for the complete threat model and trust boundaries.

@@ -1,0 +1,27 @@
+# Description: Strict corporate starter policy with a narrowly approved MCP gateway.
+version = 1
+default = "deny"
+allow = ["filesystem.read"]
+deny = [
+  "agent.unrestricted",
+  "agent.auto_approve",
+  "filesystem.outside_workspace",
+  "process.shell",
+  "secrets.embedded",
+]
+
+[[rules]]
+id = "managed-mcp-gateway"
+effect = "allow"
+permission = "network.access"
+resource = "corporate-*"
+reason = "Replace with the organization's reviewed MCP gateway"
+metadata = { host = "mcp.example.internal" }
+
+[[rules]]
+id = "approved-local-mcp-launcher"
+effect = "allow"
+permission = "process.execute"
+resource = "corporate-*"
+reason = "Replace with the organization's reviewed server and launcher"
+metadata = { command = "npx" }

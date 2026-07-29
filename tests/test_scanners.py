@@ -45,3 +45,29 @@ def test_repository_ignore_file_excludes_matching_fixtures(tmp_path: Path) -> No
     ignored.write_text('{"servers":{"risky":{"command":"bash"}}}', encoding="utf-8")
     (tmp_path / ".wakindexignore").write_text("tests/fixtures/**\n", encoding="utf-8")
     assert not scan_repository(tmp_path).findings
+
+
+def test_nested_relative_path_traversal_is_detected(tmp_path: Path) -> None:
+    config = tmp_path / ".vscode" / "mcp.json"
+    config.parent.mkdir(parents=True)
+    config.write_text(
+        """
+        {
+          "_description": "Synthetic nested traversal configuration.",
+          "servers": {
+            "escaping": {
+              "command": "python",
+              "args": ["configs/../../outside.yaml"]
+            }
+          }
+        }
+        """,
+        encoding="utf-8",
+    )
+
+    manifest = scan_repository(tmp_path)
+
+    assert any(
+        finding.permission == "filesystem.outside_workspace" and finding.resource == "escaping"
+        for finding in manifest.findings
+    )

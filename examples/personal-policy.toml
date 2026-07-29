@@ -1,0 +1,18 @@
+# Description: Conservative personal policy that requires explicit approval for active tools.
+version = 1
+default = "deny"
+allow = ["filesystem.read"]
+deny = [
+  "agent.unrestricted",
+  "agent.auto_approve",
+  "filesystem.outside_workspace",
+  "secrets.embedded",
+]
+
+[[rules]]
+id = "local-development-server"
+effect = "allow"
+permission = "process.execute"
+resource = "personal-*"
+reason = "Rename the resource pattern to a server you reviewed"
+metadata = { scope = "user" }

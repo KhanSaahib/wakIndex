@@ -19,7 +19,10 @@ python -m pip install -e ".[dev]"
 2. Add a sanitized realistic fixture and failing test before behavior changes.
 3. Keep scanners static: never execute input, resolve secret values, or require network access.
 4. Preserve deterministic manifests and stable exit codes.
-5. Update README, architecture, changelog, and release documentation when their contracts change.
+5. User-profile discovery must use explicit known paths, skip symlinks, redact the home prefix,
+   and never recursively crawl the profile.
+6. Update README, architecture, policy, changelog, and release documentation when their contracts
+   change.
 
 Every source or configuration file must begin with a short description comment where its format
 supports comments.
@@ -46,7 +49,8 @@ docker run --rm wakindex-test
 
 Keep commits focused and explain user impact, security implications, compatibility, and validation.
 Do not include credentials or copied production configuration in fixtures. New permission IDs must
-be documented in `docs/architecture.md`.
+be documented in `docs/architecture.md`. New policy selectors must be documented in
+`docs/policy.md` and tested for deny precedence.
 
 Maintainers follow [RELEASE.md](RELEASE.md) for version changes and tags. Contributors should add
 user-visible changes to the `Unreleased` section of `CHANGELOG.md`.

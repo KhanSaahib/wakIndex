@@ -76,6 +76,7 @@ def test_help_does_not_display_startup_panel(capsys) -> None:
     assert exit_info.value.code == 0
     assert CLI_BANNER not in output
     assert "scan" in output
+    assert "audit" in output
 
 
 def test_version_uses_lowercase_product_name(capsys) -> None:
@@ -114,3 +115,94 @@ def test_startup_panel_ends_with_newline_after_divider() -> None:
     panel = terminal_banner()
 
     assert panel.endswith(f"{PANEL_DIVIDER}\n")
+
+
+def test_audit_combines_workspace_and_user_configs_without_leaking_home_path(
+    tmp_path: Path,
+) -> None:
+    output = tmp_path / "environment.json"
+    home = FIXTURES / "user_home"
+
+    exit_code = main(
+        [
+            "audit",
+            str(FIXTURES / "safe_repo"),
+            "--home",
+            str(home),
+            "--output",
+            str(output),
+        ]
+    )
+    payload = json.loads(output.read_text(encoding="utf-8"))
+
+    assert exit_code == 0
+    assert any(item["metadata"]["scope"] == "user" for item in payload["findings"])
+    assert any(item["metadata"]["provider"] == "codex" for item in payload["findings"])
+    assert str(home.resolve()) not in output.read_text(encoding="utf-8")
+
+
+def test_check_can_enforce_policy_across_user_configuration(tmp_path: Path) -> None:
+    policy = tmp_path / "policy.toml"
+    policy.write_text(
+        'default = "allow"\ndeny = ["secrets.embedded"]\n',
+        encoding="utf-8",
+    )
+
+    exit_code = main(
+        [
+            "check",
+            str(FIXTURES / "safe_repo"),
+            "--include-user",
+            "--home",
+            str(FIXTURES / "user_home"),
+            "--policy",
+            str(policy),
+        ]
+    )
+
+    assert exit_code == 2
+
+
+def test_audit_workspace_only_does_not_read_user_configuration(tmp_path: Path) -> None:
+    output = tmp_path / "workspace.json"
+
+    exit_code = main(
+        [
+            "audit",
+            str(FIXTURES / "safe_repo"),
+            "--home",
+            str(FIXTURES / "user_home"),
+            "--workspace-only",
+            "--output",
+            str(output),
+        ]
+    )
+    payload = json.loads(output.read_text(encoding="utf-8"))
+
+    assert exit_code == 0
+    assert all(item["metadata"]["scope"] == "workspace" for item in payload["findings"])
+
+
+def test_check_reports_invalid_scoped_policy_without_traceback(
+    tmp_path: Path,
+    capsys,
+) -> None:
+    policy = tmp_path / "invalid-policy.toml"
+    policy.write_text(
+        '[[rules]]\nid = "broken"\neffect = "sometimes"\npermission = "network.access"\n',
+        encoding="utf-8",
+    )
+
+    exit_code = main(
+        [
+            "check",
+            str(FIXTURES / "safe_repo"),
+            "--policy",
+            str(policy),
+        ]
+    )
+    captured = capsys.readouterr()
+
+    assert exit_code == 1
+    assert "Invalid policy" in captured.err
+    assert "effect must be 'allow' or 'deny'" in captured.err

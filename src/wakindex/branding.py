@@ -3,11 +3,12 @@
 PRODUCT_NAME = "wakindex"
 PRODUCT_TAGLINE = "Inventory first. Grant less. Run safer."
 PROJECT_DESCRIPTION = (
-    "Inventory and policy-check permissions for AI agents, MCP servers, and skills."
+    "Inventory and policy-check AI agent permissions across workspaces and user environments."
 )
 COMMAND_GUIDE = """Quick start:
   wakindex init
   wakindex scan .
+  wakindex audit .
   wakindex check . --policy wakindex-policy.toml
   wakindex ui . --policy wakindex-policy.toml"""
 PANEL_DIVIDER = "─" * 56
