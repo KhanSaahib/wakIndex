@@ -1,0 +1,9 @@
+{
+  "_description": "Synthetic VS Code user MCP configuration with a local browser server.",
+  "servers": {
+    "browser": {
+      "command": "npx",
+      "args": ["-y", "@example/browser-mcp"]
+    }
+  }
+}

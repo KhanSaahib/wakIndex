@@ -1,0 +1,12 @@
+{
+  "_description": "Synthetic Claude user MCP configuration with inherited secret access.",
+  "mcpServers": {
+    "personal-notes": {
+      "command": "uvx",
+      "args": ["notes-mcp"],
+      "env": {
+        "NOTES_TOKEN": "${NOTES_TOKEN}"
+      }
+    }
+  }
+}

@@ -4,11 +4,13 @@ from __future__ import annotations
 
 import argparse
 import sys
+import tomllib
 from collections.abc import Sequence
 from pathlib import Path
 
 from wakindex import __version__
 from wakindex.branding import PROJECT_DESCRIPTION, terminal_banner
+from wakindex.environment import scan_environment
 from wakindex.models import Manifest
 from wakindex.policy import Policy, evaluate
 from wakindex.sarif import render_sarif
@@ -17,7 +19,13 @@ from wakindex.scanners import scan_repository
 DEFAULT_POLICY = Policy(
     default="deny",
     allow=("filesystem.read",),
-    deny=("agent.unrestricted", "process.shell", "filesystem.outside_workspace"),
+    deny=(
+        "agent.auto_approve",
+        "agent.unrestricted",
+        "filesystem.outside_workspace",
+        "process.shell",
+        "secrets.embedded",
+    ),
 )
 
 
@@ -61,11 +69,27 @@ def _parser() -> argparse.ArgumentParser:
     scan.add_argument("--format", choices=("json", "text"), default="json")
     scan.add_argument("--output")
 
+    audit = commands.add_parser(
+        "audit",
+        help="inventory workspace and known user-level agent configuration",
+    )
+    audit.add_argument("path", nargs="?", default=".")
+    audit.add_argument("--home", help="explicit user profile root for endpoint automation")
+    audit.add_argument("--workspace-only", action="store_true")
+    audit.add_argument("--format", choices=("json", "text"), default="json")
+    audit.add_argument("--output")
+
     check = commands.add_parser("check", help="enforce a TOML permission policy")
     check.add_argument("path", nargs="?", default=".")
     check.add_argument("--policy", default="wakindex-policy.toml")
     check.add_argument("--format", choices=("text", "json", "sarif"), default="text")
     check.add_argument("--output")
+    check.add_argument(
+        "--include-user",
+        action="store_true",
+        help="include known user-level agent configuration",
+    )
+    check.add_argument("--home", help="explicit user profile root for endpoint automation")
 
     init = commands.add_parser("init", help="create a conservative starter policy")
     init.add_argument("--policy", default="wakindex-policy.toml")
@@ -104,8 +128,19 @@ def main(argv: Sequence[str] | None = None) -> int:
     if not root.is_dir():
         print(f"Scan path is not a directory: {root}", file=sys.stderr)
         return 1
-    manifest = scan_repository(root)
-    if args.command == "scan":
+    include_user = args.command == "audit" and not args.workspace_only
+    include_user = include_user or (
+        args.command == "check" and bool(getattr(args, "include_user", False))
+    )
+    if include_user:
+        home = Path(args.home).expanduser() if args.home else Path.home()
+        if not home.is_dir():
+            print(f"User profile path is not a directory: {home}", file=sys.stderr)
+            return 1
+        manifest = scan_environment(root, home)
+    else:
+        manifest = scan_repository(root)
+    if args.command in {"scan", "audit"}:
         content = manifest.to_json() if args.format == "json" else _text_report(manifest)
         _write_or_print(content, args.output)
         return 0
@@ -114,7 +149,12 @@ def main(argv: Sequence[str] | None = None) -> int:
     if not policy_path.is_file():
         print(f"Policy not found: {policy_path}; run 'wakindex init'", file=sys.stderr)
         return 1
-    evaluation = evaluate(manifest, Policy.load(policy_path))
+    try:
+        policy = Policy.load(policy_path)
+    except (OSError, tomllib.TOMLDecodeError, ValueError) as error:
+        print(f"Invalid policy {policy_path}: {error}", file=sys.stderr)
+        return 1
+    evaluation = evaluate(manifest, policy)
     if args.format == "sarif":
         content = render_sarif(evaluation)
     elif args.format == "json":

@@ -1,0 +1,12 @@
+{
+  "_description": "Synthetic Gemini user MCP configuration with trusted remote tools.",
+  "mcpServers": {
+    "warehouse": {
+      "httpUrl": "https://warehouse.example.com/mcp",
+      "trust": true,
+      "env": {
+        "WAREHOUSE_API_KEY": "$WAREHOUSE_API_KEY"
+      }
+    }
+  }
+}

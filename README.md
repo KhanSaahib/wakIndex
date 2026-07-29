@@ -1,16 +1,17 @@
 # wakindex
 
-> Static permission inventory and policy gates for AI agents, MCP servers, skills, and GitHub
-> Actions.
+> Static permission inventory and scoped policy gates for AI agents, MCP servers, skills, user
+> environments, and GitHub Actions.
 
 ## Overview
 
 wakindex treats agent configuration like a production workload definition. Before an agent runs,
-it inventories process execution, filesystem reach, remote endpoints, inherited secret names, and
-GitHub token permissions, then checks that inventory against a repository-owned policy.
+it inventories process execution, filesystem reach, remote endpoints, inherited secret names,
+approval bypasses, embedded credential fields, and GitHub token permissions, then checks that
+inventory against an explicit policy.
 
 Analysis is deterministic and local. It requires no LLM, API key, cloud account, or network
-connection, and discovered commands are never executed.
+connection. Discovered commands are never executed and credential values are never emitted.
 
 ## Status
 
@@ -36,11 +37,15 @@ For isolated command installation, `pipx install .` is also supported.
 ```bash
 wakindex init
 wakindex scan . --output wakindex-manifest.json
+wakindex audit . --output endpoint-manifest.json
 wakindex check . --policy wakindex-policy.toml
+wakindex check . --include-user --policy wakindex-policy.toml
 wakindex ui . --policy wakindex-policy.toml
 ```
 
-`wakindex init` creates a conservative starter policy. The UI listens on
+`scan` stays repository-only. `audit` combines the repository with a fixed allowlist of known
+current-user agent configuration files. `wakindex init` creates a conservative starter policy.
+The UI listens on
 `http://127.0.0.1:8765`, provides explicit Allow/Deny controls, and does not contact an external
 service.
 
@@ -49,6 +54,7 @@ service.
 | Command | Purpose |
 | --- | --- |
 | `wakindex scan [PATH]` | Produce a deterministic permission inventory |
+| `wakindex audit [PATH]` | Inventory the workspace and known user agent configuration |
 | `wakindex check [PATH]` | Enforce a TOML policy; returns `2` for violations |
 | `wakindex init` | Create a starter policy without overwriting an existing file |
 | `wakindex ui [PATH]` | Edit discovered permissions using the loopback-only browser UI |
@@ -59,25 +65,80 @@ remain clean on stdout.
 ## What is detected
 
 - MCP commands, arguments, remote URLs, and inherited environment-variable names;
-- Claude-style allowed tools and unrestricted permission modes;
+- Codex `config.toml`, Claude, Cursor, Gemini, VS Code, and generic MCP configuration;
+- Claude-style allowed tools, unrestricted sandboxes, and auto-approval modes;
+- Claude command hooks and Codex network or additional writable-root grants;
+- sensitive environment or HTTP-header fields containing literal credential material, without
+  recording the value;
 - skill instructions declaring shell or network behavior;
 - GitHub Actions token permissions, including broad write scopes;
 - relative paths that appear to escape the repository.
 
-wakindex records secret names only and never emits environment-variable values. Use
+wakindex records secret and credential field names only and never emits their values. Use
 `.wakindexignore` with repository-relative globs for intentional fixtures or generated content.
 
-## Policy
+## Personal environment audit
 
-```toml
-# Description: wakindex permission policy; deny rules take precedence.
-default = "deny"
-allow = ["filesystem.read"]
-deny = ["agent.unrestricted", "process.shell", "filesystem.outside_workspace"]
+`audit` does not crawl a home directory. It checks only documented paths for Codex, Claude Code,
+Claude Desktop, Cursor, Gemini CLI, and VS Code. Missing files and symlinks are skipped, and output
+uses labels such as `user/codex/config.toml` instead of absolute profile paths.
+
+```bash
+wakindex audit ~/work/project
+wakindex audit ~/work/project --home /profiles/alice --format text
 ```
 
-Rules accept exact permission IDs and wildcards such as `filesystem.*`. Evaluation order is
-explicit deny, explicit allow, then the default.
+`--home` makes endpoint-management and container runs deterministic. Repository-only behavior
+remains the default for `scan`, `check`, and the GitHub Action.
+
+## Scoped policy
+
+```toml
+# Description: wakindex permission policy; scoped deny rules take precedence.
+version = 1
+default = "deny"
+allow = ["filesystem.read"]
+deny = [
+  "agent.unrestricted",
+  "agent.auto_approve",
+  "process.shell",
+  "filesystem.outside_workspace",
+  "secrets.embedded",
+]
+
+[[rules]]
+id = "approved-corporate-mcp"
+effect = "allow"
+permission = "network.access"
+resource = "corporate-tools"
+source = "user/codex/config.toml"
+reason = "Company-managed gateway"
+metadata = { host = "mcp.example.internal", provider = "codex" }
+```
+
+Legacy arrays accept permission wildcards such as `filesystem.*`. Named rules additionally match
+resource/server names, source, risk, and metadata such as host, command, provider, or inherited
+variable name. Every deny takes precedence over every allow.
+
+- [docs/policy.md](docs/policy.md) is the complete schema and matching reference.
+- [examples/personal-policy.toml](examples/personal-policy.toml) is a conservative individual
+  starting point.
+- [examples/corporate-policy.toml](examples/corporate-policy.toml) demonstrates a narrow managed
+  gateway approval.
+
+## Corporate rollout
+
+For a managed developer endpoint:
+
+```bash
+wakindex audit /workspace --home /home/employee --output endpoint-manifest.json
+wakindex check /workspace --include-user --home /home/employee \
+  --policy corporate-wakindex-policy.toml --format sarif --output wakindex.sarif
+```
+
+For repository CI, keep the GitHub Action repository-scoped and store the reviewed policy beside
+the code. The manifest is stable for pull-request diffs and rule IDs provide auditable policy
+justifications.
 
 ## GitHub Action
 
@@ -100,6 +161,15 @@ SARIF upload integration.
 docker build -t wakindex .
 docker run --rm -v "$PWD:/workspace" \
   wakindex check /workspace --policy /workspace/wakindex-policy.toml
+```
+
+Audit a mounted profile read-only:
+
+```bash
+docker run --rm \
+  -v "$PWD:/workspace:ro" \
+  -v "$HOME:/audit-home:ro" \
+  wakindex audit /workspace --home /audit-home
 ```
 
 Run the containerized quality gate:
@@ -126,6 +196,7 @@ python -m ruff check .
 
 - [CONTRIBUTING.md](CONTRIBUTING.md) defines the contribution quality bar.
 - [CHANGELOG.md](CHANGELOG.md) records user-visible changes.
+- [docs/real-world-audit.md](docs/real-world-audit.md) records the endpoint-audit design.
 - [RELEASE.md](RELEASE.md) defines SemVer and tag-driven GitHub releases.
 
 ## References
@@ -134,6 +205,11 @@ The permission model is informed by the
 [OWASP AI Security Verification Standard](https://owasp.org/www-project-artificial-intelligence-security-verification-standard-aisvs-docs/),
 the [OWASP agentic-security landscape](https://genai.owasp.org/resource/ai-security-solutions-landscape-for-agentic-ai-q2-2026/),
 the [Model Context Protocol authorization specification](https://modelcontextprotocol.io/specification/2025-06-18/basic/authorization),
+[Codex MCP configuration](https://developers.openai.com/codex/mcp/),
+[Claude Code settings](https://code.claude.com/docs/en/settings),
+[Cursor MCP configuration](https://docs.cursor.com/context/model-context-protocol),
+[Gemini CLI MCP configuration](https://github.com/google-gemini/gemini-cli/blob/main/docs/tools/mcp-server.md),
+[VS Code MCP configuration](https://code.visualstudio.com/docs/agents/reference/mcp-configuration),
 and [GitHub container-action guidance](https://docs.github.com/en/actions/concepts/workflows-and-actions/custom-actions).
 
 ## License
