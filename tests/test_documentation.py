@@ -1,6 +1,7 @@
 """Description: Documentation regression tests for local links and copyable policy examples."""
 
 import re
+import tomllib
 from pathlib import Path
 
 from wakindex.policy import Policy
@@ -28,3 +29,12 @@ def test_copyable_policy_examples_are_valid() -> None:
         policy = Policy.load(policy_path)
         assert policy.version == 1
         assert policy.default == "deny"
+
+
+def test_enterprise_account_catalog_example_is_valid_toml() -> None:
+    with (ROOT / "examples" / "enterprise-accounts.toml").open("rb") as stream:
+        catalog = tomllib.load(stream)
+
+    assert catalog["version"] == 1
+    assert catalog["organization"]["name"] == "Example Corporation"
+    assert {account["kind"] for account in catalog["accounts"]} == {"human", "service"}

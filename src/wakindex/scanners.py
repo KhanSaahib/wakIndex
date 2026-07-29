@@ -7,6 +7,7 @@ import json
 import re
 import tomllib
 from collections.abc import Iterable
+from dataclasses import dataclass
 from pathlib import Path, PurePosixPath, PureWindowsPath
 from typing import Any
 from urllib.parse import urlparse
@@ -25,6 +26,15 @@ SENSITIVE_HEADER_PATTERN = re.compile(
     r"(?:authorization|api[-_]?key|token|secret|credential)", re.IGNORECASE
 )
 WINDOWS_ABSOLUTE_PATTERN = re.compile(r"^[A-Za-z]:[\\/]")
+
+
+@dataclass(frozen=True, order=True)
+class WorkspaceConfigTarget:
+    """One supported workspace configuration file with normalized attribution."""
+
+    source: str
+    provider: str
+    path: Path
 
 
 def _relative(path: Path, root: Path) -> str:
@@ -637,13 +647,27 @@ def _candidate_files(root: Path) -> Iterable[Path]:
             yield path
 
 
+def discover_workspace_configs(root: Path) -> tuple[WorkspaceConfigTarget, ...]:
+    """Return supported workspace configuration files in deterministic order."""
+    root = root.resolve()
+    return tuple(
+        WorkspaceConfigTarget(
+            source=_relative(path, root),
+            provider=_provider_for(path),
+            path=path,
+        )
+        for path in sorted(_candidate_files(root), key=lambda item: item.as_posix())
+    )
+
+
 def scan_repository(root: Path) -> Manifest:
     """Scan supported workspace configuration beneath root without executing it."""
     root = root.resolve()
     findings: set[Finding] = set()
-    for path in sorted(_candidate_files(root), key=lambda item: item.as_posix()):
-        source = _relative(path, root)
-        provider = _provider_for(path)
+    for target in discover_workspace_configs(root):
+        path = target.path
+        source = target.source
+        provider = target.provider
         if path.name == "SKILL.md":
             findings.update(
                 _with_context(_scan_skill(path, root), provider=provider, scope="workspace")

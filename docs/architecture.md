@@ -7,17 +7,24 @@ invariants, normalized data model, policy semantics, and extension contract.
 
 ## Goals and non-goals
 
-wakindex answers five pre-execution questions:
+wakindex answers seven pre-execution questions:
 
 1. Which agent and MCP configurations are present in a workspace or known user locations?
 2. Which processes, tools, and network endpoints can those configurations invoke?
 3. Which files, credential names, approval modes, and GitHub token permissions can they reach?
 4. Which normalized permissions and concrete resources does that imply?
 5. Does the inventory comply with a reviewable local policy?
+6. Which explicit human, service, or shared account owns each agent configuration?
+7. Which configured model, model provider, provider-account alias, and safe authentication context
+   are associated with that access?
 
 wakindex is a static reviewer. It does not execute agents or MCP servers, fetch remote tool
 descriptions, resolve live cloud IAM, validate downloaded packages, prove runtime behavior, or
 replace sandboxing and identity controls.
+
+The identity inventory is configuration evidence rather than runtime attestation. A configured
+model may be overridden by a command-line flag, environment variable, managed setting, or active
+session. A provider-account alias is an operator assertion and is not proof of a live login.
 
 ## Trust and privacy boundaries
 
@@ -33,9 +40,13 @@ Security invariants:
 - repository discovery does not traverse symlinks outside the scan root;
 - user discovery checks a fixed path allowlist, skips symlinks, and never crawls the profile;
 - user sources use stable `user/...` labels and redact the audited home prefix;
+- account catalogs are explicit trusted input and profile home paths are never serialized;
+- model/auth extraction reads only documented non-secret fields and safe credential names;
 - manifest ordering is deterministic and excludes runtime timestamps;
 - every matching deny takes precedence over every allow;
 - the policy editor binds only to `127.0.0.1` and preserves scoped policy rules;
+- the identity dashboard is read-only, loopback-only, same-origin, and never embeds hostile
+  inventory values in executable JavaScript;
 - malformed policy input fails closed with a diagnostic rather than a traceback.
 
 ## Processing pipeline
@@ -59,6 +70,17 @@ known user config paths --> privacy context -->+--> normalized Finding values
                                                                   |
                                                                   v
                                                           pass or violations
+
+explicit account catalog ---> account/profile boundaries
+          |                              |
+          |                              v
+          +------------------> config identity inspection
+                                         |
+Manifest findings + policy decisions ----+--> identity-1.0 relationship inventory
+                                                        |
+                                                        +--> JSON / text
+                                                        |
+                                                        +--> loopback dashboard
 ```
 
 `scan` uses only the workspace path. `audit` includes known user configuration. `check` remains
@@ -71,10 +93,12 @@ workspace-only unless `--include-user` is explicit.
 | `environment.py` | Discover known user config paths and combine endpoint findings | Crawl the home directory or emit its absolute prefix |
 | `scanners.py` | Extract static evidence from supported files | Execute commands, emit credential values, or escape the boundary |
 | `models.py` | Define stable `Finding` and `Manifest` serialization | Add volatile runtime state |
+| `identity.py` | Validate account catalogs and build account/agent/model/access relationships | Read token stores or claim runtime identity |
 | `policy.py` | Validate TOML and apply legacy/scoped deny precedence | Infer intent or silently accept malformed rules |
 | `sarif.py` | Translate violations to SARIF 2.1 | Change policy decisions |
 | `cli.py` | Validate arguments, select scan scope/output, and return stable exit codes | Pollute JSON or SARIF stdout |
 | `ui.py` | Edit legacy permission choices on loopback while preserving scoped rules | Contact remote services |
+| `dashboard.py` | Serve an immutable relationship inventory with safe browser filtering/export | Bind externally or interpolate hostile HTML |
 | `release.py` | Match immutable SemVer tags to the package version | Publish or mutate tags |
 
 ## Discovery scopes
@@ -91,6 +115,10 @@ subject to `.wakindexignore`. User discovery does not recurse and considers:
 
 An explicit `--home` makes the user boundary reproducible for containers and endpoint management.
 System-level MDM, registry, and fleet APIs are not scanned in this milestone.
+
+Multi-account inventory uses explicit account-catalog homes and runs the same fixed known-path
+discovery independently for each account. The current-account workflow does not enumerate other
+operating-system users.
 
 ## Data model and compatibility
 
@@ -110,6 +138,16 @@ New findings include `provider` and `scope` metadata. Capability-specific metada
 Manifest schema `1.0` remains independent from the package version. Adding metadata keys or new
 permission IDs is backward compatible. Removing fields, changing existing permission meaning, or
 altering stable source semantics requires a new schema version and migration guidance.
+
+Identity inventory schema `identity-1.0` is separate and contains accounts, agent instances, and
+access records. Account home paths are runtime scan boundaries and are intentionally absent from
+serialization. Each access record retains the underlying normalized finding and adds account ID,
+agent ID, and an `allowed`, `denied`, or `unreviewed` policy decision.
+
+An agent instance corresponds to one account plus one supported configuration source. Its stable
+ID is derived deterministically from endpoint, workspace identifier, account ID, provider, and
+source so inventories can be merged across a fleet without common project-path collisions. Model
+status is either `configured` or `runtime-selected`; missing information is not guessed.
 
 ## Permission taxonomy
 
@@ -153,6 +191,7 @@ Ignore rules are a reviewer decision and part of the trusted configuration bound
 
 - unreadable or malformed candidate agent files are skipped without executing fallback logic;
 - an invalid scan path, user profile path, or policy returns exit code `1`;
+- an invalid account catalog, duplicate account ID, or unreadable profile boundary returns `1`;
 - policy violations return exit code `2`;
 - compliant scans and audits return `0`;
 - machine formats remain valid on stdout, with diagnostics sent to stderr.
@@ -169,3 +208,6 @@ To support a new ecosystem:
 6. extend the taxonomy only when existing permission IDs cannot express the capability;
 7. test scoped policy selectors and deny precedence for new metadata;
 8. update this document, the policy reference, README, and changelog.
+
+For new identity hints, also prove that model identifiers and auth-context labels are documented,
+non-secret, deterministic, and do not expose the profile home.

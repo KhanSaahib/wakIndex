@@ -1,4 +1,6 @@
 # Description: Synthetic Codex user configuration covering enterprise MCP and sandbox risks.
+model = "gpt-5.5"
+model_provider = "openai"
 sandbox_mode = "danger-full-access"
 approval_policy = "never"
 

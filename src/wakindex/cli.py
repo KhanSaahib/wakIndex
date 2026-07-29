@@ -11,6 +11,12 @@ from pathlib import Path
 from wakindex import __version__
 from wakindex.branding import PROJECT_DESCRIPTION, terminal_banner
 from wakindex.environment import scan_environment
+from wakindex.identity import (
+    IdentityInventory,
+    build_identity_inventory,
+    current_account_catalog,
+    load_account_catalog,
+)
 from wakindex.models import Manifest
 from wakindex.policy import Policy, evaluate
 from wakindex.sarif import render_sarif
@@ -55,6 +61,28 @@ def _text_report(manifest: Manifest) -> str:
     return "\n".join(lines) + "\n"
 
 
+def _identity_text_report(inventory: IdentityInventory) -> str:
+    """Render a compact account-to-agent posture report."""
+    summary = inventory.as_dict()["summary"]
+    lines = [
+        (
+            "IDENTITY ACCESS INVENTORY - "
+            f"{summary['accounts']} account(s), {summary['agents']} agent surface(s), "
+            f"{summary['access_records']} access record(s)"
+        )
+    ]
+    accounts = {account.id: account for account in inventory.accounts}
+    for agent in inventory.agents:
+        account = accounts[agent.account_id]
+        model = ", ".join(agent.models) if agent.models else "runtime/default"
+        lines.append(
+            f"- {account.id} | {agent.product} | source={agent.source} | model={model} | "
+            f"access={agent.access_count} | high={agent.high_risk_count} | "
+            f"denied={agent.policy_denials}"
+        )
+    return "\n".join(lines) + "\n"
+
+
 def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="wakindex",
@@ -90,6 +118,28 @@ def _parser() -> argparse.ArgumentParser:
         help="include known user-level agent configuration",
     )
     check.add_argument("--home", help="explicit user profile root for endpoint automation")
+
+    inventory = commands.add_parser(
+        "inventory",
+        help="map accounts to agents, configured models, and effective access",
+    )
+    inventory.add_argument("path", nargs="?", default=".")
+    inventory.add_argument("--accounts", help="explicit enterprise account catalog TOML")
+    inventory.add_argument("--workspace-id", help="stable project label for fleet aggregation")
+    inventory.add_argument("--policy", help="optional policy used to label access decisions")
+    inventory.add_argument("--format", choices=("json", "text"), default="json")
+    inventory.add_argument("--output")
+
+    dashboard = commands.add_parser(
+        "dashboard",
+        help="open the local enterprise identity and access dashboard",
+    )
+    dashboard.add_argument("path", nargs="?", default=".")
+    dashboard.add_argument("--accounts", help="explicit enterprise account catalog TOML")
+    dashboard.add_argument("--workspace-id", help="stable project label for fleet aggregation")
+    dashboard.add_argument("--policy", help="optional policy used to label access decisions")
+    dashboard.add_argument("--port", type=int, default=8766)
+    dashboard.add_argument("--no-browser", action="store_true")
 
     init = commands.add_parser("init", help="create a conservative starter policy")
     init.add_argument("--policy", default="wakindex-policy.toml")
@@ -128,6 +178,40 @@ def main(argv: Sequence[str] | None = None) -> int:
     if not root.is_dir():
         print(f"Scan path is not a directory: {root}", file=sys.stderr)
         return 1
+    if args.command in {"inventory", "dashboard"}:
+        try:
+            catalog = (
+                load_account_catalog(Path(args.accounts))
+                if args.accounts
+                else current_account_catalog()
+            )
+            identity_policy = None
+            if args.policy:
+                policy_path = Path(args.policy)
+                if not policy_path.is_file():
+                    print(f"Policy not found: {policy_path}; run 'wakindex init'", file=sys.stderr)
+                    return 1
+                identity_policy = Policy.load(policy_path)
+            inventory = build_identity_inventory(
+                root,
+                catalog,
+                policy=identity_policy,
+                workspace_id=args.workspace_id,
+            )
+        except (OSError, tomllib.TOMLDecodeError, ValueError) as error:
+            print(f"Invalid identity inventory input: {error}", file=sys.stderr)
+            return 1
+        if args.command == "dashboard":
+            from wakindex.dashboard import serve_dashboard
+
+            return serve_dashboard(
+                inventory,
+                port=args.port,
+                open_browser=not args.no_browser,
+            )
+        content = inventory.to_json() if args.format == "json" else _identity_text_report(inventory)
+        _write_or_print(content, args.output)
+        return 0
     include_user = args.command == "audit" and not args.workspace_only
     include_user = include_user or (
         args.command == "check" and bool(getattr(args, "include_user", False))
