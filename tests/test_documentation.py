@@ -38,3 +38,10 @@ def test_enterprise_account_catalog_example_is_valid_toml() -> None:
     assert catalog["version"] == 1
     assert catalog["organization"]["name"] == "Example Corporation"
     assert {account["kind"] for account in catalog["accounts"]} == {"human", "service"}
+
+
+def test_permission_review_can_upload_sarif_with_supported_action() -> None:
+    workflow = (ROOT / ".github" / "workflows" / "wakindex.yml").read_text(encoding="utf-8")
+
+    assert "actions: read" in workflow
+    assert "github/codeql-action/upload-sarif@v4" in workflow
