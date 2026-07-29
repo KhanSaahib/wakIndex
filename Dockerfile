@@ -19,6 +19,7 @@ COPY docs ./docs
 COPY examples ./examples
 COPY CHANGELOG.md CONTRIBUTING.md RELEASE.md ./
 COPY .github/workflows/release.yml ./.github/workflows/release.yml
+COPY .github/workflows/wakindex.yml ./.github/workflows/wakindex.yml
 COPY .gitignore ./.gitignore
 RUN python -m pip install --no-cache-dir ".[dev]"
 RUN python -m pytest && python -m ruff check .

@@ -1,0 +1,28 @@
+# Description: Enterprise account catalog template with explicit profile and business context.
+version = 1
+
+[organization]
+name = "Example Corporation"
+environment = "production"
+
+[[accounts]]
+id = "alice"
+display_name = "Alice Chen"
+kind = "human"
+home = "/profiles/alice"
+department = "Platform Engineering"
+endpoint = "ENG-LT-042"
+tags = ["developer", "production-support"]
+
+[accounts.provider_accounts]
+codex = "openai-enterprise/alice"
+claude = "anthropic-team/alice"
+gemini = "google-workspace/alice"
+
+[[accounts]]
+id = "release-bot"
+display_name = "Release automation"
+kind = "service"
+department = "Platform Engineering"
+endpoint = "github-actions"
+tags = ["ci", "non-human"]

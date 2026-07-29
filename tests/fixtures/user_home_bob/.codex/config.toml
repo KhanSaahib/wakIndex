@@ -1,0 +1,12 @@
+# Description: Synthetic Codex configuration using a Bedrock model provider and AWS profile.
+model = "anthropic.claude-sonnet-4-6"
+model_provider = "amazon-bedrock"
+sandbox_mode = "workspace-write"
+
+[model_providers.amazon-bedrock.aws]
+profile = "corp-readonly"
+region = "us-east-1"
+
+[mcp_servers.analytics]
+url = "https://analytics.example.internal/mcp"
+env_vars = ["ANALYTICS_TOKEN"]

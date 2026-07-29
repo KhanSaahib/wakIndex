@@ -3,6 +3,7 @@ name: Agent permission review
 on:
   pull_request:
 permissions:
+  actions: read
   contents: read
   security-events: write
 jobs:
@@ -18,6 +19,6 @@ jobs:
           output: wakindex.sarif
       - name: Upload findings
         if: always()
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: wakindex.sarif

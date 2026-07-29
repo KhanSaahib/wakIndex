@@ -1,5 +1,7 @@
 {
   "_description": "Synthetic Claude settings with a hook and intentionally embedded credential markers.",
+  "model": "claude-sonnet-5",
+  "fallbackModel": ["claude-haiku-4-5"],
   "env": {
     "ANTHROPIC_AUTH_TOKEN": "FIXTURE_LITERAL_DO_NOT_EMIT"
   },
