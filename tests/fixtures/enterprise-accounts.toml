@@ -1,0 +1,33 @@
+# Description: Synthetic enterprise account catalog for multi-user identity attribution tests.
+version = 1
+
+[organization]
+name = "Example Corporation"
+environment = "production"
+
+[[accounts]]
+id = "alice"
+display_name = "Alice Chen"
+kind = "human"
+home = "user_home"
+department = "Platform Engineering"
+endpoint = "ENG-LT-042"
+tags = ["developer", "production-support"]
+
+[accounts.provider_accounts]
+codex = "openai-enterprise/alice"
+claude = "anthropic-team/alice"
+gemini = "google-workspace/alice"
+
+[[accounts]]
+id = "bob"
+display_name = "Bob <script>alert('x')</script>"
+kind = "human"
+home = "user_home_bob"
+department = "Data Engineering"
+endpoint = "DATA-LT-007"
+tags = ["developer", "analytics"]
+
+[accounts.provider_accounts]
+codex = "aws-bedrock/data-team"
+gemini = "google-workspace/bob"

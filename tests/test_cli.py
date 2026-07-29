@@ -77,6 +77,8 @@ def test_help_does_not_display_startup_panel(capsys) -> None:
     assert CLI_BANNER not in output
     assert "scan" in output
     assert "audit" in output
+    assert "inventory" in output
+    assert "dashboard" in output
 
 
 def test_version_uses_lowercase_product_name(capsys) -> None:
@@ -206,3 +208,39 @@ def test_check_reports_invalid_scoped_policy_without_traceback(
     assert exit_code == 1
     assert "Invalid policy" in captured.err
     assert "effect must be 'allow' or 'deny'" in captured.err
+
+
+def test_inventory_writes_account_agent_model_and_policy_relationships(
+    tmp_path: Path,
+) -> None:
+    output = tmp_path / "identity-access.json"
+    policy = tmp_path / "policy.toml"
+    policy.write_text(
+        'default = "allow"\ndeny = ["agent.unrestricted"]\n',
+        encoding="utf-8",
+    )
+
+    exit_code = main(
+        [
+            "inventory",
+            str(FIXTURES / "safe_repo"),
+            "--accounts",
+            str(FIXTURES / "enterprise-accounts.toml"),
+            "--workspace-id",
+            "billing-service",
+            "--policy",
+            str(policy),
+            "--output",
+            str(output),
+        ]
+    )
+    payload = json.loads(output.read_text(encoding="utf-8"))
+
+    assert exit_code == 0
+    assert payload["schema_version"] == "identity-1.0"
+    assert payload["workspace"] == "billing-service"
+    assert payload["summary"]["accounts"] == 2
+    assert payload["summary"]["agents"] >= 6
+    assert payload["summary"]["policy_denials"] >= 1
+    assert any(agent["models"] == ["gpt-5.5"] for agent in payload["agents"])
+    assert any(record["decision"] == "denied" for record in payload["access"])

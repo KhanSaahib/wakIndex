@@ -4,6 +4,7 @@
 !.github/workflows/
 .github/workflows/*
 !.github/workflows/release.yml
+!.github/workflows/wakindex.yml
 .venv
 __pycache__
 .pytest_cache

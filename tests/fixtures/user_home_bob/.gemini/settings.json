@@ -1,0 +1,20 @@
+{
+  "_description": "Synthetic Gemini model and authentication configuration with one remote MCP server.",
+  "model": {
+    "name": "gemini-3.1-pro"
+  },
+  "security": {
+    "auth": {
+      "selectedType": "vertex-ai",
+      "enforcedType": "vertex-ai"
+    }
+  },
+  "mcpServers": {
+    "warehouse-readonly": {
+      "httpUrl": "https://warehouse.example.internal/mcp",
+      "env": {
+        "WAREHOUSE_TOKEN": "${WAREHOUSE_TOKEN}"
+      }
+    }
+  }
+}

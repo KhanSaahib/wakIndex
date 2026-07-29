@@ -1,0 +1,5 @@
+{
+  "_description": "Synthetic model-only Claude configuration that must remain visible without access findings.",
+  "model": "claude-opus-4-6",
+  "fallbackModel": ["claude-sonnet-4-6"]
+}

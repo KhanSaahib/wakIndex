@@ -22,6 +22,13 @@ All notable user-visible changes to wakindex are recorded here. The format follo
 - Versioned, resource-scoped policy rules with stable IDs, metadata selectors, reasons, and deny
   precedence.
 - Copyable personal and corporate policy examples.
+- Account-aware `identity-1.0` inventory for human, service, and shared accounts, including
+  configured models, model providers, provider-account aliases, authentication context, effective
+  access, and policy decisions.
+- Read-only enterprise identity and access dashboard with posture metrics, attribution coverage,
+  identity map, permission matrix, filters, secure same-origin JSON export, and loopback security
+  headers.
+- Strict enterprise account catalog plus a copyable multi-account template.
 
 ### Changed
 
@@ -29,3 +36,5 @@ All notable user-visible changes to wakindex are recorded here. The format follo
 - Limited the startup panel to `wakindex init` so scan, check, UI, and help remain compact.
 - Expanded architecture, contribution, security, and user documentation.
 - Added provider and workspace/user scope metadata to normalized findings.
+- Preserved the existing manifest, SARIF, policy editor, GitHub Action, and CLI behavior while
+  adding separate `inventory` and `dashboard` workflows.

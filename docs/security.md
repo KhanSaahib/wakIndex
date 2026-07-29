@@ -28,5 +28,17 @@ crawl arbitrary profile files.
 The browser editor listens on `127.0.0.1` and writes only the explicitly selected policy path.
 Scoped rules are preserved when the editor changes legacy permission-wide choices.
 
-wakindex does not validate remote server behavior, live cloud IAM, or runtime sandbox enforcement.
+The enterprise dashboard also listens only on `127.0.0.1`. It is read-only, serves one immutable
+inventory snapshot, fetches hostile data from a same-origin JSON endpoint, and inserts values with
+DOM text operations rather than executable HTML. Responses disable caching and framing, prevent
+MIME sniffing, suppress referrers, and apply a restrictive Content Security Policy. It is not an
+authenticated multi-user web service and must not be exposed directly to a network.
+
+Account catalogs are trusted operator input. They may contain business identity labels and
+provider-account aliases, but profile home paths are used only for discovery and are never
+serialized. wakindex does not read vendor credential stores, keychains, login sessions, browser
+profiles, or chat transcripts to resolve an identity.
+
+wakindex does not validate remote server behavior, live cloud IAM, runtime sandbox enforcement,
+the active model for a session, or the live provider login behind an operator alias.
 See `docs/architecture.md` for the complete threat model and trust boundaries.

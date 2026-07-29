@@ -1,5 +1,14 @@
 {
   "_description": "Synthetic Gemini user MCP configuration with trusted remote tools.",
+  "model": {
+    "name": "gemini-3-flash"
+  },
+  "security": {
+    "auth": {
+      "selectedType": "oauth-personal",
+      "enforcedType": "oauth-personal"
+    }
+  },
   "mcpServers": {
     "warehouse": {
       "httpUrl": "https://warehouse.example.com/mcp",
